@@ -26,10 +26,15 @@
 
         <ion-button
           color="danger"
-          (click)="logout">Logout</ion-button>
+          (click)="logout()">Logout</ion-button>
       </div>
     </ion-card>
 
+
+    <!--
+    | Search Form STARTS
+    -->
+    <form [formGroup]="userSearchForm" (ngSubmit)="searchUser()">
     <ion-card class="ion-no-margin ion-margin-vertical bottom-radius-form shadow px-3">
 
       <ion-card-content>
@@ -38,9 +43,13 @@
           <ion-row>
             <ion-col size="6">
               <ion-select
+                placeholder="Block"
+                interface="action-sheet"
+                okText="Okay"
+                cancelText="Close"
                 class="ion-no-padding ion-padding-horizontal"
-                interface="popover">
-                  <ion-select-option value="brown">Brown</ion-select-option>
+                formControlName="block">
+                  <ion-select-option value="all">All</ion-select-option>
                   <ion-select-option value="blonde">Blonde</ion-select-option>
                   <ion-select-option value="black">Black</ion-select-option>
                   <ion-select-option value="red">Red</ion-select-option>
@@ -48,9 +57,13 @@
             </ion-col>
             <ion-col size="6">
               <ion-select
+                placeholder="Panchayat"
+                interface="action-sheet"
+                okText="Okay"
+                cancelText="Close"
                 class="ion-no-padding ion-padding-horizontal"
-                interface="popover">
-                  <ion-select-option value="brown">Brown</ion-select-option>
+                formControlName="panchayat">
+                  <ion-select-option value="all">All</ion-select-option>
                   <ion-select-option value="blonde">Blonde</ion-select-option>
                   <ion-select-option value="black">Black</ion-select-option>
                   <ion-select-option value="red">Red</ion-select-option>
@@ -62,23 +75,26 @@
             <ion-label position="floating">Search By Unique ID</ion-label>
             <ion-input
               type="text" 
-              name="userName"
+              name="uid"
+              formControlName="uid"
               autofocus="true"></ion-input>
           </ion-item>
 
           <ion-item>
             <ion-label position="floating">Search By Name</ion-label>
             <ion-input
-              type="password"
-              name="password"
+              type="text"
+              name="name"
+              formControlName="name"
               autocomplete="off"></ion-input>
           </ion-item>
 
           <ion-item>
             <ion-label position="floating">Search By Mobile No.</ion-label>
             <ion-input
-              type="password"
-              name="password"
+              type="text"
+              name="phone"
+              formControlName="phone"
               autocomplete="off"></ion-input>
           </ion-item>
 
@@ -100,11 +116,16 @@
       </ion-card-content>
 
     </ion-card>
+    </form>
+    <!--
+    | Search Form ENDS
+    -->
 
-    <ion-card class="ion-no-margin ion-margin-vertical">
+
+    <ion-card class="ion-no-margin ion-margin-vertical" *ngIf="userList">
       <ion-card-content>
 
-        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of [1, 2, 3, 4]">
+        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of userList">
           <ion-row class="heading">
             <ion-col>U. ID</ion-col>
             <ion-col>Name</ion-col>

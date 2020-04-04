@@ -92,9 +92,13 @@ export class CameraComponent implements OnInit {
   }
 
   navigate() {
+    localStorage.setItem('image', this.picture);
+    localStorage.setItem('address', this.address);
+    localStorage.setItem('lat', this.lat);
+    localStorage.setItem('long', this.long);
     this.stopCamera().then(
       res => {
-        this.navController.navigateRoot(['/user-detail']);
+        this.navController.navigateBack(['/user-detail']);
       }
     );
   }
@@ -124,7 +128,6 @@ export class CameraComponent implements OnInit {
         .reverseGeocode(lattitude, longitude, options)
         .then((result: NativeGeocoderResult[]) => {
           console.log(result);
-          // alert(JSON.stringify(result))
           this.address = '';
           const responseAddress = [];
           for (const [key, value] of Object.entries(result[0])) {
@@ -138,8 +141,9 @@ export class CameraComponent implements OnInit {
           }
           this.address = this.address.slice(0, -2);
           console.log(this.address);
-
+          this.navigate();
         })
         .catch((error: any) =>  this.address = 'Address Not Available!');
   }
+
 }
