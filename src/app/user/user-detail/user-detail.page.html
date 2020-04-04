@@ -12,22 +12,259 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid >
+  <ion-grid>
+
     <ion-card class="ion-padding card">
       <div class="ion-text-center">
         <h1>CIMS - Covid 19 Information Management System</h1>
         
         <h1>Government of Bihar</h1>
 
-        <h1>Assigned User</h1>
+        <h2>प्रभावित व्यक्तियों की निगरानी और ट्रैकिंग के उद्देश्य के लिए (For the Purpose of Monitoring & Tracking of Affected Persons)</h2>
 
         <p>(Logged In As Field Exec. 481)</p>
+      </div>
+    </ion-card>
+
+    <ion-card class="ion-no-margin ion-margin-vertical bottom-radius-form shadow px-3">
+      <ion-card-content>
+        <ion-list class="ion-no-margin ion-no-padding">
+
+          <ion-item>
+            <ion-label position="floating">Enter Unique ID</ion-label>
+            <ion-input
+              type="text" 
+              name="userName"
+              autofocus="true"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Select Date</ion-label>
+            <ion-datetime 
+              type="text" 
+              name="date"
+              displayFormat="YYYY/MM/DD" 
+              min="2019" max="2030"></ion-datetime>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Select Time Slot</ion-label>
+            <ion-datetime 
+              type="text" 
+              name="time"
+              displayFormat="hh:mm A" 
+              minuteValues="0,15,30,45"></ion-datetime>
+          </ion-item>
+
+        </ion-list>
+
+        <ion-button
+          expand="block"
+          color="success"
+          class="ion-margin-vertical btn-width"
+          type="submit">Submit</ion-button>
+
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="ion-no-margin ion-margin-vertical">
+      <ion-card-header>
+        <ion-card-title class="bold">Selected District: Nawada</ion-card-title>
+      </ion-card-header>
+    
+      <ion-card-content>
+        <h2 class="bold" color="dark">Details</h2>
+        <div class="text ion-margin-vertical">
+          <p>
+            <ion-text color="medium">
+              Unique ID: 1821
+              Date Selected: 3-Apr-2020
+              Time: Evening
+            </ion-text>
+          </p>
+        </div>
+        <br>
+
+
+        <ion-radio-group value="1">
+          <ion-row>
+            <ion-list-header class="ion-no-padding ion-padding-horizontal">
+              <ion-label class="font">क्या यह व्यक्ति घर पर उपलब्ध है? - Is this person available at home?</ion-label>
+            </ion-list-header>
+          </ion-row>
+          
+          <ion-row class="radio-buttons">
+            <ion-col size="6" class="ion-no-padding">
+              <ion-item>
+                <ion-label>Yes</ion-label>
+                <ion-radio slot="start" value="1"></ion-radio>
+              </ion-item>
+            </ion-col>
+            <ion-col size="6" class="ion-no-padding">
+              <ion-item>
+                <ion-label>No</ion-label>
+                <ion-radio slot="start" value="2"></ion-radio>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-radio-group>
+        <br>
+
+
+        <ion-list class="ion-no-margin ion-no-padding">
+          <ion-item>
+            <ion-label position="floating">व्यक्ति का नाम - Name</ion-label>
+            <ion-input 
+              type="text"
+              disabled="true"
+              value="Mohsin Khan"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">पिता/पति का नाम - Father or Husband Name</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="Munid Khan"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">लिंग - Gender</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="Male"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">उम्र - Age</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="25"></ion-input>
+          </ion-item>
+          <br>
+          <br>
+        </ion-list>
+
+
+        <h1 class="bold ion-padding-horizontal" color="dark">मोबाइल नंबर - Mobile Number</h1>
+        <ion-list class="ion-no-margin ion-no-padding">
+          <ion-item>
+            <ion-label position="floating">स्वयं का - Self</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="8840002768"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">पड़ोसी या रिश्तेदार का नाम - Neighbour or relative</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="7318230930"></ion-input>
+          </ion-item>
+          <br>
+          <br>
+        </ion-list>
+
+
+        <h1 class="bold ion-padding-horizontal" color="dark">पता - Address</h1>
+        <ion-list class="ion-no-margin ion-no-padding">
+          <ion-item>
+            <ion-label position="floating">District</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="Nawada"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">Block</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="Akbarpur"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">पंचायत / नगर का नाम - Panchayat/Town Name</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="Akbarpur"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">गाँव - Village</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="Akbarpur"></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">वार्ड नंबर और हाउस नंबर - Ward Number & House Number</ion-label>
+            <ion-input 
+              type="text" 
+              disabled="true"
+              value="10"></ion-input>
+          </ion-item>
+          <br>
+          <br>
+        </ion-list>
+
+
+        <h1 class="bold ion-padding-horizontal" color="dark">आधिकारिक संपर्क किया गया - Official Contacted</h1>
+        <ion-list class="ion-no-margin ion-no-padding">
+          <ion-item>
+            <ion-label position="floating">नाम - Name</ion-label>
+            <ion-input 
+              type="text" 
+              value=""></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">पदनाम - Designation</ion-label>
+            <ion-input 
+              type="text" 
+              value=""></ion-input>
+          </ion-item>
+          <br>
+
+          <ion-item>
+            <ion-label position="floating">मोबाइल - Mobile</ion-label>
+            <ion-input 
+              type="text" 
+              value=""></ion-input>
+          </ion-item>
+          <br>
+          <br>
+
+        </ion-list>
 
         <ion-button
           color="danger"
           (click)="openCamera()">Take a Photo</ion-button>
-      </div>
+
+        <ion-button
+          color="primary"
+          class="ion-margin-vertical btn-width"
+          type="submit">Submit</ion-button>
+
+      </ion-card-content>
     </ion-card>
+
   </ion-grid>
 
 </ion-content>
