@@ -1,0 +1,51 @@
+<!-- Display Captured Picture - Starts-->
+<ion-grid *ngIf="picture" class="ion-no-padding ion-no-margin">
+  <ion-row>
+    <ion-col class="ion-no-padding relative">
+      <ion-img [src]="picture"></ion-img>
+      <ion-text color="light" class="absolute-text-2">
+        <p>TAP AND HOLD TO EDIT THE INGREDIENTS</p>
+        <P>TAP INGREDIENT NOT IDENTIFIED TO ADD</P>
+      </ion-text>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+<!-- Display Captured Picture - End -->
+
+<!-- Flash Mode - Starts -->
+<ion-fab horizontal="start" vertical="top" slot="fixed" *ngIf="picture === '' && showIcons">
+  <ion-fab-button color="dark" size="small" (click)="getFlashMode()">
+    <ion-icon name="flash"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-list side="end">
+    <ion-fab-button color="transparent" *ngFor="let flash of flashModes | async" class="flash-modes">
+      <ion-label [color]="activeFlash === flash ? 'primary' : 'light'" (click)="setFlashMode(flash)">{{ flash }}</ion-label>
+    </ion-fab-button>
+  </ion-fab-list>
+</ion-fab>
+<!-- Flash Mode - End -->
+
+
+<!-- Close Camera Button - Starts-->
+<ion-fab horizontal="end" vertical="top" slot="fixed" *ngIf="picture === '' && showIcons">
+  <ion-fab-button color="dark" (click)="navigate()" size="small">
+    <ion-icon name="close"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+<!-- Close Camera Button - End -->
+
+
+<!-- Retake Picture - Starts -->
+<ion-fab horizontal="end" vertical="top" slot="fixed" *ngIf="picture !== '' && !isCameraOpen">
+  <ion-fab-button color="dark" (click)="refresh()" size="small">
+    <ion-icon name="trash"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+<!-- Retake Picture - End -->
+
+<!-- Take Picture Button - Starts -->
+<ion-fab horizontal="center" vertical="bottom" slot="fixed" *ngIf="picture === '' && showIcons">
+  <ion-fab-button color="transparent" (click)="takePicture()" class="camera-button">
+  </ion-fab-button>
+</ion-fab>
+<!-- Take Picture Button - End -->

@@ -1,0 +1,29 @@
+
+ion-toolbar {
+    ion-title, ion-buttons {
+        font-weight: bold;
+    }
+}
+ion-card.card {
+    box-shadow: none;
+
+    h1, h2 {
+        color: black;
+        font-weight: bold;
+    }
+}
+
+ion-row.heading {
+    ion-col {
+        color: black;
+        font-weight: bold;
+    }
+}
+
+ion-col {
+    --ion-grid-column-padding: 5px;
+}
+
+ion-grid.user-list {
+    border-bottom: 1px solid #ccc;
+}

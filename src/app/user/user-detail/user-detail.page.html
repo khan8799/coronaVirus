@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>
+      The Covid Tracker
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="changeText" onClick="toggleText()">
+        <ion-icon slot="start" name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid >
+    <ion-card class="ion-padding card">
+      <div class="ion-text-center">
+        <h1>CIMS - Covid 19 Information Management System</h1>
+        
+        <h1>Government of Bihar</h1>
+
+        <h1>Assigned User</h1>
+
+        <p>(Logged In As Field Exec. 481)</p>
+
+        <ion-button
+          color="danger"
+          (click)="openCamera()">Take a Photo</ion-button>
+      </div>
+    </ion-card>
+  </ion-grid>
+
+</ion-content>

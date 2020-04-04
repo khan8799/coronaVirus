@@ -1,0 +1,14 @@
+
+ion-toolbar {
+    ion-title, ion-buttons {
+        font-weight: bold;
+    }
+}
+ion-card.card {
+    box-shadow: none;
+
+    h1, h2 {
+        color: black;
+        font-weight: bold;
+    }
+}
