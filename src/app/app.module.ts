@@ -10,10 +10,11 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CameraPreview } from '@ionic-native/camera-preview/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
+import { AuthInterceptor } from './interceptor/AuthInterceptor';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,11 @@ import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     CameraPreview,
     Geolocation,
     NativeGeocoder,
