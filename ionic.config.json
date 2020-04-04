@@ -1,0 +1,9 @@
+{
+  "name": "ionicJenkins",
+  "integrations": {
+    "capacitor": {},
+    "cordova": {}
+  },
+  "type": "angular",
+  "id": "e3611f25"
+}
