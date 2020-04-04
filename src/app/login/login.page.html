@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>
+      The Covid Tracker
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="changeText" onClick="toggleText()">
+        <ion-icon slot="start" name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="background-image">
+  <ion-grid>
+
+    <ion-card class="ion-padding card">
+      <div class="ion-text-center">
+        <h1>CIMS - Covid 19 Information Management System</h1>
+        
+        <h1>Government of Bihar</h1>
+      </div>
+    </ion-card>
+
+    <ion-card class="bottom-radius-form shadow px-3">
+
+      <form [formGroup]="userLoginForm" (ngSubmit)="login()">
+        <ion-card-content>
+          <ion-list class="ion-no-margin ion-no-padding">
+
+            <ion-item>
+              <ion-label position="floating">User ID</ion-label>
+              <ion-input
+                type="text" 
+                name="userName"
+                autofocus="true"
+                formControlName="userName"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input
+                type="password"
+                name="password"
+                autocomplete="off"
+                formControlName="password"></ion-input>
+            </ion-item>
+  
+          </ion-list>
+
+            <ion-button
+              color="primary"
+              class="ion-margin-vertical btn-width"
+              type="submit">Login</ion-button>
+          
+        </ion-card-content>
+      </form>
+
+    </ion-card>
+  </ion-grid>
+</ion-content>
+

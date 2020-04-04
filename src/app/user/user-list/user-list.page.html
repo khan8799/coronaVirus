@@ -1,0 +1,153 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>
+      The Covid Tracker
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="changeText" onClick="toggleText()">
+        <ion-icon slot="start" name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="background-image">
+  <ion-grid>
+
+    <ion-card class="ion-padding card">
+      <div class="ion-text-center">
+        <h1>CIMS - Covid 19 Information Management System</h1>
+        
+        <h1>Government of Bihar</h1>
+
+        <h1>Assigned User</h1>
+
+        <p>(Logged In As Field Exec. 481)</p>
+
+        <ion-button
+          color="danger"
+          (click)="logout">Logout</ion-button>
+      </div>
+    </ion-card>
+
+    <ion-card class="ion-no-margin ion-margin-vertical bottom-radius-form shadow px-3">
+
+      <ion-card-content>
+        <ion-list class="ion-no-margin ion-no-padding">
+
+          <ion-row>
+            <ion-col size="6">
+              <ion-select
+                class="ion-no-padding ion-padding-horizontal"
+                interface="popover">
+                  <ion-select-option value="brown">Brown</ion-select-option>
+                  <ion-select-option value="blonde">Blonde</ion-select-option>
+                  <ion-select-option value="black">Black</ion-select-option>
+                  <ion-select-option value="red">Red</ion-select-option>
+              </ion-select>
+            </ion-col>
+            <ion-col size="6">
+              <ion-select
+                class="ion-no-padding ion-padding-horizontal"
+                interface="popover">
+                  <ion-select-option value="brown">Brown</ion-select-option>
+                  <ion-select-option value="blonde">Blonde</ion-select-option>
+                  <ion-select-option value="black">Black</ion-select-option>
+                  <ion-select-option value="red">Red</ion-select-option>
+              </ion-select>
+            </ion-col>
+          </ion-row>
+
+          <ion-item>
+            <ion-label position="floating">Search By Unique ID</ion-label>
+            <ion-input
+              type="text" 
+              name="userName"
+              autofocus="true"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Search By Name</ion-label>
+            <ion-input
+              type="password"
+              name="password"
+              autocomplete="off"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Search By Mobile No.</ion-label>
+            <ion-input
+              type="password"
+              name="password"
+              autocomplete="off"></ion-input>
+          </ion-item>
+
+        </ion-list>
+
+        <ion-button
+          color="primary"
+          class="ion-margin-vertical btn-width"
+          type="submit">Search</ion-button>
+
+        <div class="ion-text-center">
+          <ion-button
+            color="primary"
+            size="small"
+            fill="outline"
+            (click)="logout">Reset</ion-button>
+        </div>
+        
+      </ion-card-content>
+
+    </ion-card>
+
+    <ion-card class="ion-no-margin ion-margin-vertical">
+      <ion-card-content>
+
+        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of [1, 2, 3, 4]">
+          <ion-row class="heading">
+            <ion-col>U. ID</ion-col>
+            <ion-col>Name</ion-col>
+            <ion-col>Age</ion-col>
+            <ion-col>Contact</ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-text (click)="openForm(person)" color="primary">182{{ person }}</ion-text>
+            </ion-col>
+            <ion-col>Mohammad Farman</ion-col>
+            <ion-col>23</ion-col>
+            <ion-col>8840002768</ion-col>
+          </ion-row>
+
+          <ion-row class="heading">
+            <ion-col></ion-col>
+            <ion-col>Other Contact</ion-col>
+            <ion-col>Panchayat</ion-col>
+            <ion-col>Vilage</ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col></ion-col>
+            <ion-col></ion-col>
+            <ion-col>Baksanda</ion-col>
+            <ion-col>Madani</ion-col>
+          </ion-row>
+
+          <ion-row class="heading">
+            <ion-col></ion-col>
+            <ion-col>Ward</ion-col>
+            <ion-col>Quarantine</ion-col>
+            <ion-col>Status</ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col></ion-col>
+            <ion-col>10</ion-col>
+            <ion-col>at home</ion-col>
+            <ion-col>Monitoring Started</ion-col>
+          </ion-row>
+        </ion-grid>
+
+      </ion-card-content>
+    </ion-card>
+  </ion-grid>
+</ion-content>
