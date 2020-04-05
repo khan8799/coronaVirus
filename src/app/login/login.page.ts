@@ -4,6 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { LoadingService } from '../services/loading.service';
 import { ToastService } from '../services/toast.service';
 import { NavController } from '@ionic/angular';
+import { Storage } from '@ionic/storage';
 
 @Component({
   selector: 'app-login',
@@ -19,16 +20,23 @@ export class LoginPage implements OnInit {
     private loadingService: LoadingService,
     private toastService: ToastService,
     private userService: UserService,
+    private storage: Storage,
   ) { }
 
   ngOnInit() {
     localStorage.clear();
     this.initializeForm();
+    this.getUserData();
+  }
+
+  async getUserData() {
+    const userData = await this.storage.get('userData');
+    if (userData) { this.navController.navigateRoot(['/user-list']); }
   }
 
   initializeForm(): void {
     this.userLoginForm = this.fb.group({
-      userName: ['', [Validators.required]],
+      user_id: ['', [Validators.required]],
       password: ['', [Validators.required]],
     });
   }
@@ -41,13 +49,15 @@ export class LoginPage implements OnInit {
 
     await this.loadingService.presentLoading('Logging in...');
 
-    const userObject = {
-      ...this.userLoginForm.value
-    };
-    console.log(userObject);
+    const formData = new FormData();
+
+    formData.append('user_id', this.userLoginForm.value.user_id);
+    formData.append('password', this.userLoginForm.value.password);
+
+    console.log(formData);
 
     this.userService
-        .login(userObject)
+        .login(formData)
         .subscribe(
           (resp) => this.setUserDetailShared(resp),
           err => this.dismissLoading(err.message)
@@ -55,7 +65,7 @@ export class LoginPage implements OnInit {
   }
 
   setUserDetailShared(resp) {
-    localStorage.setItem('accessToken', resp.token);
+    this.storage.set('userData', resp.data[0]);
 
     this.dismissLoading('');
     this.navController.navigateRoot(['/user-list']);

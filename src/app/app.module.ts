@@ -15,6 +15,7 @@ import { CameraPreview } from '@ionic-native/camera-preview/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { AuthInterceptor } from './interceptor/AuthInterceptor';
+import { IonicStorageModule } from '@ionic/storage';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,10 @@ import { AuthInterceptor } from './interceptor/AuthInterceptor';
     IonicModule.forRoot(),
     AppRoutingModule,
     ReactiveFormsModule,
+    IonicStorageModule.forRoot({
+      name: '__mydb',
+      driverOrder: ['indexeddb', 'sqlite', 'websql']
+    }),
   ],
   providers: [
     StatusBar,

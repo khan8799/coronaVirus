@@ -6,18 +6,15 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class UserService {
-
   constructor(
     private http: HttpClient,
   ) { }
 
   login(userObject): Observable<any> {
-    return of({token: 'abcd'});
-    return  this.http.post<any>('UserProfile/Login', userObject);
+    return  this.http.post<any>('Users/login', userObject);
   }
 
   getUserList(searchObject): Observable<any> {
-    return of([1, 2, 3, 4]);
-    return this.http.get<any>('Wallet/TopUpPlans', searchObject);
+    return this.http.post<any>('Users/assignedUser', searchObject);
   }
 }

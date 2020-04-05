@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="danger">
     <ion-title>
-      The Covid Tracker
+      चक्षु - The Covid Tracker
     </ion-title>
     <ion-buttons slot="end">
       <ion-button id="changeText" onClick="toggleText()">
@@ -122,10 +122,10 @@
     -->
 
 
-    <ion-card class="ion-no-margin ion-margin-vertical" *ngIf="userList">
+    <ion-card class="ion-no-margin ion-margin-vertical" *ngIf="filterUserist">
       <ion-card-content>
 
-        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of userList">
+        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of filterUserist">
           <ion-row class="heading">
             <ion-col>U. ID</ion-col>
             <ion-col>Name</ion-col>
@@ -134,11 +134,11 @@
           </ion-row>
           <ion-row>
             <ion-col>
-              <ion-text (click)="openForm(person)" color="primary">182{{ person }}</ion-text>
+              <ion-text (click)="openForm(person.id)" color="primary">{{ person.id }}</ion-text>
             </ion-col>
-            <ion-col>Mohammad Farman</ion-col>
-            <ion-col>23</ion-col>
-            <ion-col>8840002768</ion-col>
+            <ion-col>{{ person.name }}</ion-col>
+            <ion-col>{{ person.age }}</ion-col>
+            <ion-col>{{ person.contact }}</ion-col>
           </ion-row>
 
           <ion-row class="heading">
@@ -149,9 +149,9 @@
           </ion-row>
           <ion-row>
             <ion-col></ion-col>
-            <ion-col></ion-col>
-            <ion-col>Baksanda</ion-col>
-            <ion-col>Madani</ion-col>
+            <ion-col>{{ person.other_contact }}</ion-col>
+            <ion-col>{{ person.panchayat }}</ion-col>
+            <ion-col>{{ person.village }}</ion-col>
           </ion-row>
 
           <ion-row class="heading">
@@ -162,9 +162,9 @@
           </ion-row>
           <ion-row>
             <ion-col></ion-col>
-            <ion-col>10</ion-col>
-            <ion-col>at home</ion-col>
-            <ion-col>Monitoring Started</ion-col>
+            <ion-col>{{ person.ward }}</ion-col>
+            <ion-col>{{ person.qurantined }}</ion-col>
+            <ion-col>{{ person.status }}</ion-col>
           </ion-row>
         </ion-grid>
 
