@@ -15,15 +15,9 @@ import { environment } from 'src/environments/environment';
 export class AuthInterceptor implements HttpInterceptor {
   private AUTH_HEADER     = 'Authorization';
   private token           = null;
-  // private API_URL         = environment.apiURL;
-  // private API_URL         = environment.apiEndpoint;
   private API_URL         = environment.apiEndpointProxy;
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!req.headers.has('Content-Type')) {
-      req = req.clone({headers: req.headers.set('Content-Type', 'application/json')});
-    }
-
     req = this.setUrl(req);
 
     req = this.addAuthenticationToken(req);
@@ -31,23 +25,9 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(req)
       .pipe(
         retry(1),
-        map(response => {
-          if (response instanceof HttpResponse) {
-            response = response.clone({ body: this.interceptResponse(response.body) });
-          }
-          return response;
-        }),
         catchError((error: HttpErrorResponse) => {
-          console.log(error);
           let errorMessage;
-          if (error.error instanceof ErrorEvent) {
-            errorMessage = { message: error.message };
-          } else {
-            errorMessage = {
-              message: error.error.exception.errorMessage
-            };
-          }
-
+          errorMessage = { message: error.message };
           return throwError(errorMessage);
         })
       );

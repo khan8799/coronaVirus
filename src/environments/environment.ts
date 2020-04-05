@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiEndpointProxy: 'http://tharkaree.thinkatronics.com/api/',
+  apiEndpointProxy: 'https://bcims.in/api/',
 };
 
 /*

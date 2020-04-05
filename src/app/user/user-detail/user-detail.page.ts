@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-user-detail',
@@ -12,16 +13,20 @@ export class UserDetailPage implements OnInit {
   long;
   address;
   public scrollToItem;
+  public infectedPersonId;
 
   constructor(
     private navController: NavController,
+    private activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit() {
-    this.picture = localStorage.getItem('image');
-    this.lat = localStorage.getItem('lat');
-    this.long = localStorage.getItem('long');
-    this.address = localStorage.getItem('address');
+    this.activatedRoute.queryParams.subscribe(params => this.infectedPersonId = params.id);
+
+    this.picture  = localStorage.getItem('image');
+    this.lat      = localStorage.getItem('lat');
+    this.long     = localStorage.getItem('long');
+    this.address  = localStorage.getItem('address');
 
     if (this.picture && this.lat && this.long) { this.scrollToItemFn(); }
   }
