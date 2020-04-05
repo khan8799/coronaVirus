@@ -253,6 +253,22 @@
 
         </ion-list>
 
+        <!-- Display Captured Picture - Starts-->
+        <ion-grid id="image" *ngIf="picture" class="ion-no-padding ion-no-margin">
+          <ion-row>
+            <ion-col class="ion-no-padding relative">
+              <img [src]="picture" width="100%" height="150px">
+              <ion-text color="dark" class="absolute-text-2">
+                <p><ion-text class="bold">Address: </ion-text> {{ address }}</p>
+                <P><ion-text class="bold">Lat: </ion-text> {{ lat }}</P>
+                <P><ion-text class="bold">Long: </ion-text> {{ long }}</P>
+              </ion-text>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <!-- Display Captured Picture - End -->
+
+
         <ion-button
           color="danger"
           (click)="openCamera()">Take a Photo</ion-button>
