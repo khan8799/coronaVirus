@@ -29,6 +29,9 @@ export class CameraComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    const token = localStorage.getItem('token');
+    localStorage.clear();
+    localStorage.setItem('token', token);
     this.openCamera();
   }
 
@@ -51,18 +54,14 @@ export class CameraComponent implements OnInit {
       (imageData) => {
         this.customizeCameraService.stopCamera().then(
           (res) => {
-            this.checkLocation();
             this.picture = 'data:image/jpeg;base64,' + imageData;
             this.isCameraOpen = false;
+            this.checkLocation();
           },
-          (err) => {
-            console.log(err);
-          }
+          (err) => console.log(err)
         );
       },
-      (err) => {
-        console.log(err);
-      }
+      (err) => console.log(err)
     );
   }
 
@@ -91,18 +90,6 @@ export class CameraComponent implements OnInit {
     this.openCamera();
   }
 
-  navigate() {
-    localStorage.setItem('image', this.picture);
-    localStorage.setItem('address', this.address);
-    localStorage.setItem('lat', this.lat);
-    localStorage.setItem('long', this.long);
-    this.stopCamera().then(
-      res => {
-        this.navController.navigateBack(['/user-detail']);
-      }
-    );
-  }
-
   checkLocation() {
     this.geolocation
         .getCurrentPosition({ enableHighAccuracy: true})
@@ -111,10 +98,7 @@ export class CameraComponent implements OnInit {
           this.long = resp.coords.longitude;
           this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
         })
-        .catch((error) => {
-          // tslint:disable-next-line: no-string-literal
-          navigator['app'].exitApp();
-        });
+        .catch((error) => console.log(error));
   }
 
   getAddressFromCoords(lattitude, longitude) {
@@ -144,6 +128,14 @@ export class CameraComponent implements OnInit {
           this.navigate();
         })
         .catch((error: any) =>  this.address = 'Address Not Available!');
+  }
+
+  navigate() {
+    localStorage.setItem('image', this.picture);
+    localStorage.setItem('address', this.address);
+    localStorage.setItem('lat', this.lat);
+    localStorage.setItem('long', this.long);
+    this.navController.navigateBack(['/user-detail']);
   }
 
 }
