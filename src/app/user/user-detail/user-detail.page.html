@@ -52,9 +52,9 @@
             <ion-datetime 
               type="text" 
               name="date"
-              displayFormat="YYYY/MM/DD"
-              formControlName="date"
-              min="2019" max="2030"></ion-datetime>
+              displayFormat="MMM/DD/YYYY"
+              [max]="todaysDate"
+              formControlName="date"></ion-datetime>
           </ion-item>
           <br>
 
@@ -109,7 +109,7 @@
           <br>
 
 
-          <ion-radio-group value="1" formControlName="isAvailable" (ionChange)="availabilityChange($event)">
+          <ion-radio-group value="yes" formControlName="isAvailable" (ionChange)="availabilityChange($event)">
             <ion-row>
               <ion-list-header class="ion-no-padding ion-padding-horizontal">
                 <ion-label class="font">क्या यह व्यक्ति घर पर उपलब्ध है? - Is this person available at home?</ion-label>
@@ -120,13 +120,13 @@
               <ion-col size="6" class="ion-no-padding">
                 <ion-item>
                   <ion-label>Yes</ion-label>
-                  <ion-radio slot="start" value="1"></ion-radio>
+                  <ion-radio slot="start" value="yes"></ion-radio>
                 </ion-item>
               </ion-col>
               <ion-col size="6" class="ion-no-padding">
                 <ion-item>
                   <ion-label>No</ion-label>
-                  <ion-radio slot="start" value="0"></ion-radio>
+                  <ion-radio slot="start" value="no"></ion-radio>
                 </ion-item>
               </ion-col>
             </ion-row>
@@ -318,24 +318,21 @@
               </ng-container>
             </ng-container>
 
-            <ion-item>
-              <ion-label position="floating">क्या घर / आइसोलेशन केन्द्र में स्वयं को सीमित रखें है (Quarantined at home or center?)</ion-label>
-              <ion-input 
-                type="text"
-                name="quarantined"
-                formControlName="quarantined"
-                (ionBlur)="logValidationErrors()"></ion-input>
-            </ion-item>
-            <ion-item 
-              class="ion-no-padding error-list" 
-              lines="none" 
-              *ngIf="formErrors.quarantined">
-                <ul lines="none">
-                  <li color="danger">{{ formErrors.quarantined }} </li>
-                </ul>
-            </ion-item>
+            <ion-row>
+              <ion-col>
+                <ion-select
+                  interface="popover"
+                  class="ion-no-padding ion-padding-horizontal"
+                  name="quarantined"
+                  formControlName="quarantined">
+                    <ion-select-option value="no">No</ion-select-option>
+                    <ion-select-option value="at_home">घर में - At Home</ion-select-option>
+                    <ion-select-option value="at_isolation"> Isolation केंद्र में - At Isolation center</ion-select-option>
+                </ion-select>
+              </ion-col>
+            </ion-row>
             <br>
-            <ion-radio-group formControlName="poster">
+            <ion-radio-group value="yes" formControlName="poster">
               <ion-row>
                 <ion-list-header class="ion-no-padding ion-padding-horizontal">
                   <ion-label class="font">क्या मकान या घर के बाहर quarantine का पोस्टर लगा है?</ion-label>
@@ -346,13 +343,13 @@
                 <ion-col size="6" class="ion-no-padding">
                   <ion-item>
                     <ion-label>हाँ Yes</ion-label>
-                    <ion-radio slot="start" value="1"></ion-radio>
+                    <ion-radio slot="start" value="yes"></ion-radio>
                   </ion-item>
                 </ion-col>
                 <ion-col size="6" class="ion-no-padding">
                   <ion-item>
                     <ion-label>नहीं No</ion-label>
-                    <ion-radio slot="start" value="0"></ion-radio>
+                    <ion-radio slot="start" value="no"></ion-radio>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -409,6 +406,15 @@
 
       </ion-card>
     </form>
+
+    <div *ngIf="showExistMessage" class="ion-text-center">
+      <h1>
+        <ion-text color="danger">
+          Record already exists for Unique ID {{ infectedPersonId }} of {{ userDataExistForm.value.date | date }} - {{ userDataExistForm.value.time }}
+        </ion-text>
+      </h1>
+    </div>
+    
   </ion-grid>
 
 </ion-content>
