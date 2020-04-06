@@ -21,7 +21,7 @@ export class CameraService {
   pictureOpts: CameraPreviewPictureOptions = {
     width: 360,
     height: 640,
-    quality: 85
+    quality: 50
   };
 
   constructor(

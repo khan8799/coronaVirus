@@ -20,7 +20,7 @@ export class UserService {
   }
 
   userForm(searchObject): Observable<any> {
-    return this.http.post<any>('Users/assignedUser', searchObject);
+    return this.http.post<any>('Users/fieldForm', searchObject);
   }
 
   blockList(districtObject): Observable<any> {
@@ -29,5 +29,9 @@ export class UserService {
 
   panchayatList(blockObject): Observable<any> {
     return this.http.post<any>('Location/gramPanchayat', blockObject).pipe(map(res => res.data));
+  }
+
+  checkEntrySlot(checkEntryObject): Observable<any> {
+    return this.http.post<any>('Users/checkEntrySlot', checkEntryObject);
   }
 }

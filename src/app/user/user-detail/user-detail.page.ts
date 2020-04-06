@@ -27,6 +27,7 @@ export class UserDetailPage implements OnInit {
   public monitoredUserData;
   public showSymptoms = true;
   public showForm = false;
+  public showExistMessage = false;
   selectedArray: any = [];
   symptomsList;
   public validationMessages = CustomValidationMessages.validationMessages;
@@ -37,6 +38,11 @@ export class UserDetailPage implements OnInit {
     quarantined: '',
     remarks: '',
   };
+
+  public slot;
+  public date;
+
+  todaysDate = new Date().toISOString();
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +55,7 @@ export class UserDetailPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    console.log(this.todaysDate);
     this.initializeForm();
     this.activatedRoute.queryParams.subscribe(params => {
       this.infectedPersonId = params.id;
@@ -74,13 +81,13 @@ export class UserDetailPage implements OnInit {
   initializeForm(): void {
     this.userForm = this.fb.group({
       time: [''],
-      isAvailable: ['1'],
+      isAvailable: ['yes'],
       officialName: ['', [Validators.required]],
       officialDesignation: ['', [Validators.required]],
       officialPhone: ['', [Validators.required, CustomValidators.phoneValidator]],
       symptoms: [''],
-      quarantined: ['', [Validators.required]],
-      poster: ['1'],
+      quarantined: ['no', [Validators.required]],
+      poster: ['yes'],
       remarks: ['', [Validators.required]],
     });
 
@@ -118,13 +125,11 @@ export class UserDetailPage implements OnInit {
     const symptomsExist = await this.storage.get('symptoms');
 
     if (symptomsExist) {
+      this.showForm = true;
       this.selectedArray = symptomsExist;
       this.symptomsList = this.symptomsList.map(symptoms => {
         const newSymptoms = symptoms;
-        console.log(this.selectedArray.indexOf(symptoms.value));
-        if (this.selectedArray.indexOf(symptoms.value) !== -1) {
-          newSymptoms.isChecked = true;
-        }
+        if (this.selectedArray.indexOf(symptoms.value) !== -1) newSymptoms.isChecked = true;
         return symptoms;
       });
     }
@@ -158,16 +163,36 @@ export class UserDetailPage implements OnInit {
     if (ev.detail.value === '0') { this.showSymptoms = false; }
   }
 
-  checkUserdataExistForm() {
-    this.showForm = true;
-    console.log(this.userDataExistForm.value);
+  async checkUserdataExistForm() {
+    await this.loadingService.presentLoading('Checking data exist...');
+    const form  = this.userDataExistForm.value;
+    const date = new Date(form.date);
+    const month = date.getMonth() > 9 ? date.getMonth() : '0' + date.getMonth();
+    const day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
+    const formData = new FormData();
+    formData.append('user_id', this.userData.id);
+    formData.append('pid', this.infectedPersonId);
+    formData.append('slot', form.time);
+    formData.append('date', date.getFullYear() + '-' + month + '-' + day);
+    this.date = form.date;
+    this.slot = form.time;
+
+    this.userService
+        .checkEntrySlot(formData)
+        .subscribe(
+          (resp) => {
+            if (resp.errorCode === 0) this.showForm = true;
+            else this.showExistMessage = true;
+            this.dismissLoading('');
+          },
+          err => this.dismissLoading(err.message)
+        );
   }
 
   async submitForm() {
     this.userForm.markAllAsTouched();
     this.logValidationErrors();
 
-    console.log(this.userForm.value);
     if (!this.userForm.valid) {
       await this.toastService.presentToast('Form is not valid');
       return;
@@ -179,21 +204,27 @@ export class UserDetailPage implements OnInit {
     }
 
     await this.loadingService.presentLoading('Submitting form...');
-
+    this.slot = await this.storage.get('slot');
+    this.date = await this.storage.get('date');
     const formData = new FormData();
 
+    formData.append('user_id', this.userData.id);
+    formData.append('pid', this.infectedPersonId);
+    formData.append('slot', this.slot);
+    formData.append('date', this.date);
     formData.append('isAvailable', this.userForm.value.isAvailable);
     formData.append('officialName', this.userForm.value.officialName);
     formData.append('officialDesignation', this.userForm.value.officialDesignation);
     formData.append('officialPhone', this.userForm.value.officialPhone);
     formData.append('symptoms', this.selectedArray);
-    formData.append('panchayat', this.userForm.value.panchayat);
     formData.append('quarantined', this.userForm.value.quarantined);
     formData.append('poster', this.userForm.value.poster);
     formData.append('remarks', this.userForm.value.remarks);
+    formData.append('panchayat', this.userForm.value.panchayat);
     formData.append('image', this.picture);
     formData.append('lat', this.lat);
     formData.append('long', this.long);
+    formData.append('loc_address', this.address);
 
     console.log(formData);
 
@@ -201,10 +232,12 @@ export class UserDetailPage implements OnInit {
         .userForm(formData)
         .subscribe(
           (resp) => {
-            this.dismissLoading('Data Submitted Successfully');
-            setTimeout(() => {
-              this.navController.navigateRoot(['/user-list']);
-            }, 200);
+            if (resp.errorCode === 0) {
+              this.dismissLoading('Data Submitted Successfully');
+              setTimeout(() => {
+                this.navController.navigateRoot(['/user-list']);
+              }, 200);
+            }
           },
           err => this.dismissLoading(err.message)
         );
@@ -274,6 +307,8 @@ export class UserDetailPage implements OnInit {
   openCamera() {
     this.storage.set('userForm', this.userForm.value);
     this.storage.set('symptoms', this.selectedArray);
+    this.storage.set('slot', this.slot);
+    this.storage.set('date', this.date);
 
     const navigationExtras: NavigationExtras = {
       queryParams: { id: this.infectedPersonId }
