@@ -65,10 +65,14 @@ export class LoginPage implements OnInit {
   }
 
   setUserDetailShared(resp) {
-    this.storage.set('userData', resp.data[0]);
+    if (resp.errorCode === 1) {
+      this.dismissLoading(resp.message);
+    } else {
+      this.storage.set('userData', resp.data[0]);
 
-    this.dismissLoading('');
-    this.navController.navigateRoot(['/user-list']);
+      this.dismissLoading('');
+      this.navController.navigateRoot(['/user-list']);
+    }
   }
 
   async dismissLoading(err: string) {

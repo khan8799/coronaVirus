@@ -3,6 +3,7 @@ import { CameraService } from '../services/camera.service';
 import { NavController } from '@ionic/angular';
 import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 import { Geolocation} from '@ionic-native/geolocation/ngx';
+import { ActivatedRoute, NavigationExtras } from '@angular/router';
 
 @Component({
   selector: 'app-camera',
@@ -20,12 +21,14 @@ export class CameraComponent implements OnInit {
   address: any = '';
   lat;
   long;
+  public infectedPersonId;
 
   constructor(
     private navController: NavController,
     private customizeCameraService: CameraService,
     public geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,
+    private activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit() {
@@ -33,6 +36,11 @@ export class CameraComponent implements OnInit {
     localStorage.clear();
     localStorage.setItem('token', token);
     this.openCamera();
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.infectedPersonId = params.id;
+      if (!this.infectedPersonId) { this.navController.navigateRoot(['/user-list']); }
+    });
   }
 
   openCamera() {
@@ -43,7 +51,10 @@ export class CameraComponent implements OnInit {
       },
       (err) => {
         if (err === 'Illegal access') {
-          this.navController.navigateRoot(['/user-detail']);
+          const navigationExtras: NavigationExtras = {
+            queryParams: { id: this.infectedPersonId }
+          };
+          this.navController.navigateRoot(['/user-detail'], navigationExtras);
         }
       }
     );
@@ -135,7 +146,11 @@ export class CameraComponent implements OnInit {
     localStorage.setItem('address', this.address);
     localStorage.setItem('lat', this.lat);
     localStorage.setItem('long', this.long);
-    this.navController.navigateBack(['/user-detail']);
+    const navigationExtras: NavigationExtras = {
+      queryParams: { id: this.infectedPersonId }
+    };
+    console.log('dfdvad');
+    this.navController.navigateRoot(['/user-detail'], navigationExtras);
   }
 
 }
