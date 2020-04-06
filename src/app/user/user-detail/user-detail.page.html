@@ -1,5 +1,8 @@
 <ion-header>
   <ion-toolbar color="danger">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/user-list"></ion-back-button>
+    </ion-buttons>
     <ion-title>
       चक्षु - The Covid Tracker
     </ion-title>
@@ -10,6 +13,8 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+
 
 <ion-content>
   <ion-grid>
@@ -22,11 +27,15 @@
 
         <h2>प्रभावित व्यक्तियों की निगरानी और ट्रैकिंग के उद्देश्य के लिए (For the Purpose of Monitoring & Tracking of Affected Persons)</h2>
 
-        <p>(Logged In As Field Exec. 481)</p>
+        <p>(Logged In As Field Exec. {{ userData?.id }})</p>
       </div>
     </ion-card>
 
+
+
+    <form [formGroup]="userDataExistForm" (ngSubmit)="checkUserdataExistForm()">
     <ion-card class="ion-no-margin ion-margin-vertical bottom-radius-form shadow px-3">
+
       <ion-card-content>
         <ion-list class="ion-no-margin ion-no-padding">
 
@@ -34,10 +43,8 @@
             <ion-label position="floating">Enter Unique ID</ion-label>
             <ion-input
               type="text" 
-              name="userName"
               disabled="true"
-              [value]="infectedPersonId"
-              autofocus="true"></ion-input>
+              [value]="infectedPersonId"></ion-input>
           </ion-item>
 
           <ion-item>
@@ -45,18 +52,27 @@
             <ion-datetime 
               type="text" 
               name="date"
-              displayFormat="YYYY/MM/DD" 
+              displayFormat="YYYY/MM/DD"
+              formControlName="date"
               min="2019" max="2030"></ion-datetime>
           </ion-item>
+          <br>
 
-          <ion-item>
-            <ion-label position="floating">Select Time Slot</ion-label>
-            <ion-datetime 
-              type="text" 
-              name="time"
-              displayFormat="hh:mm A" 
-              minuteValues="0,15,30,45"></ion-datetime>
-          </ion-item>
+          <ion-row>
+            <ion-col>
+              <ion-select
+                placeholder="-- Select time slot --"
+                interface="popover"
+                class="ion-no-padding ion-padding-horizontal"
+                name="time"
+                formControlName="time">
+                  <ion-select-option value="">-- Select time slot --</ion-select-option>
+                  <ion-select-option value="Morning">Morning (प्रातः 8 बजे से अपराह्न 2:00 बजे तक - From 8 AM to 2 PM)</ion-select-option>
+                  <ion-select-option value="Evening">Evening (अपराह्न 2:00 बजे से रात्रि 6:00 बजे तक - From 2 PM to 6 PM)</ion-select-option>
+              </ion-select>
+            </ion-col>
+          </ion-row>
+          <br>
 
         </ion-list>
 
@@ -67,321 +83,332 @@
           type="submit">Submit</ion-button>
 
       </ion-card-content>
+
     </ion-card>
-
-    <ion-card class="ion-no-margin ion-margin-vertical">
-      <ion-card-header>
-        <ion-card-title class="bold">Selected District: Nawada</ion-card-title>
-      </ion-card-header>
-    
-      <ion-card-content>
-        <h2 class="bold" color="dark">Details</h2>
-        <div class="text ion-margin-vertical">
-          <p>
-            <ion-text color="medium">
-              Unique ID: {{ infectedPersonId }}
-              Date Selected: 3-Apr-2020
-              Time: Evening
-            </ion-text>
-          </p>
-        </div>
-        <br>
+    </form>
 
 
-        <ion-radio-group value="1">
-          <ion-row>
-            <ion-list-header class="ion-no-padding ion-padding-horizontal">
-              <ion-label class="font">क्या यह व्यक्ति घर पर उपलब्ध है? - Is this person available at home?</ion-label>
-            </ion-list-header>
-          </ion-row>
-          
-          <ion-row class="radio-buttons">
-            <ion-col size="6" class="ion-no-padding">
-              <ion-item>
-                <ion-label>Yes</ion-label>
-                <ion-radio slot="start" value="1"></ion-radio>
-              </ion-item>
-            </ion-col>
-            <ion-col size="6" class="ion-no-padding">
-              <ion-item>
-                <ion-label>No</ion-label>
-                <ion-radio slot="start" value="2"></ion-radio>
-              </ion-item>
-            </ion-col>
-          </ion-row>
-        </ion-radio-group>
-        <br>
 
-
-        <ion-list class="ion-no-margin ion-no-padding">
-          <ion-item>
-            <ion-label position="floating">व्यक्ति का नाम - Name</ion-label>
-            <ion-input 
-              type="text"
-              disabled="true"
-              value="Mohsin Khan"></ion-input>
-          </ion-item>
+    <form *ngIf="showForm" [formGroup]="userForm" (ngSubmit)="submitForm()">
+      <ion-card class="ion-no-margin ion-margin-vertical">
+        <ion-card-header>
+          <ion-card-title class="bold">Selected District: Nawada</ion-card-title>
+        </ion-card-header>
+      
+        <ion-card-content>
+          <h2 class="bold" color="dark">Details</h2>
+          <div class="text ion-margin-vertical">
+            <p>
+              <ion-text color="medium">
+                Unique ID: {{ infectedPersonId }}
+                Date Selected: 3-Apr-2020
+                Time: Evening
+              </ion-text>
+            </p>
+          </div>
           <br>
 
-          <ion-item>
-            <ion-label position="floating">पिता/पति का नाम - Father or Husband Name</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="Munid Khan"></ion-input>
-          </ion-item>
-          <br>
 
-          <ion-item>
-            <ion-label position="floating">लिंग - Gender</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="Male"></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">उम्र - Age</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="25"></ion-input>
-          </ion-item>
-          <br>
-          <br>
-        </ion-list>
-
-
-        <h1 class="bold ion-padding-horizontal" color="dark">मोबाइल नंबर - Mobile Number</h1>
-        <ion-list class="ion-no-margin ion-no-padding">
-          <ion-item>
-            <ion-label position="floating">स्वयं का - Self</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="8840002768"></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">पड़ोसी या रिश्तेदार का नाम - Neighbour or relative</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="7318230930"></ion-input>
-          </ion-item>
-          <br>
-          <br>
-        </ion-list>
-
-
-        <h1 class="bold ion-padding-horizontal" color="dark">पता - Address</h1>
-        <ion-list class="ion-no-margin ion-no-padding">
-          <ion-item>
-            <ion-label position="floating">District</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="Nawada"></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">Block</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="Akbarpur"></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">पंचायत / नगर का नाम - Panchayat/Town Name</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="Akbarpur"></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">गाँव - Village</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="Akbarpur"></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">वार्ड नंबर और हाउस नंबर - Ward Number & House Number</ion-label>
-            <ion-input 
-              type="text" 
-              disabled="true"
-              value="10"></ion-input>
-          </ion-item>
-          <br>
-          <br>
-        </ion-list>
-
-
-        <h1 class="bold ion-padding-horizontal" color="dark">आधिकारिक संपर्क किया गया - Official Contacted</h1>
-        <ion-list class="ion-no-margin ion-no-padding">
-          <ion-item>
-            <ion-label position="floating">नाम - Name</ion-label>
-            <ion-input 
-              type="text" 
-              value=""></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">पदनाम - Designation</ion-label>
-            <ion-input 
-              type="text" 
-              value=""></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">मोबाइल - Mobile</ion-label>
-            <ion-input 
-              type="text" 
-              value=""></ion-input>
-          </ion-item>
-          <br>
-          <br>
-
-        </ion-list>
-
-        <h1 class="bold ion-padding-horizontal" color="dark">प्रभावित व्यक्ति की स्थिति - Condition of the Person affected</h1>
-        <ion-list class="ion-no-margin ion-no-padding">
-          <ion-item>
-            <ion-label>सूखी खांसी - Dry Cough</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label>साँस लेने में तकलीफ़ - Difficulty Breathing</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label> बुख़ार - Fever</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label>सर्दी - Cold</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label>दस्त - Diarrhoea</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label>गले में ख़राश - Soar Throat</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label>सिरदर्द - Headache</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label>शरीर में मरोड़ - Body Ache</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label>इनमें से कोई नहीं None of the above</ion-label>
-            <ion-checkbox name="symptoms" color="primary" slot="start"></ion-checkbox>
-          </ion-item>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">क्या घर / आइसोलेशन केन्द्र में स्वयं को सीमित रखें है (Quarantined at home or center?)</ion-label>
-            <ion-input 
-              type="text" 
-              value=""></ion-input>
-          </ion-item>
-          <br>
-
-          <ion-radio-group value="1">
+          <ion-radio-group value="1" formControlName="isAvailable" (ionChange)="availabilityChange($event)">
             <ion-row>
               <ion-list-header class="ion-no-padding ion-padding-horizontal">
-                <ion-label class="font">क्या मकान या घर के बाहर quarantine का पोस्टर लगा है?</ion-label>
+                <ion-label class="font">क्या यह व्यक्ति घर पर उपलब्ध है? - Is this person available at home?</ion-label>
               </ion-list-header>
             </ion-row>
             
             <ion-row class="radio-buttons">
               <ion-col size="6" class="ion-no-padding">
                 <ion-item>
-                  <ion-label>हाँ Yes</ion-label>
+                  <ion-label>Yes</ion-label>
                   <ion-radio slot="start" value="1"></ion-radio>
                 </ion-item>
               </ion-col>
               <ion-col size="6" class="ion-no-padding">
                 <ion-item>
-                  <ion-label>नहीं No</ion-label>
-                  <ion-radio slot="start" value="2"></ion-radio>
+                  <ion-label>No</ion-label>
+                  <ion-radio slot="start" value="0"></ion-radio>
                 </ion-item>
               </ion-col>
             </ion-row>
           </ion-radio-group>
           <br>
-          <br>
-
-          <ion-item>
-            <ion-label position="floating">Remarks</ion-label>
-            <ion-input 
-              type="text" 
-              value=""></ion-input>
-          </ion-item>
-          <br>
-
-        </ion-list>
-
-        <!-- Display Captured Picture - Starts-->
-        <ion-grid id="image" *ngIf="picture" class="ion-no-padding ion-no-margin">
-          <ion-row>
-            <ion-col class="ion-no-padding relative">
-              <img [src]="picture" width="100%" height="150px">
-              <ion-text color="dark" class="absolute-text-2">
-                <p><ion-text class="bold">Address: </ion-text> {{ address }}</p>
-                <P><ion-text class="bold">Lat: </ion-text> {{ lat }}</P>
-                <P><ion-text class="bold">Long: </ion-text> {{ long }}</P>
-              </ion-text>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-        <!-- Display Captured Picture - End -->
 
 
-        <ion-button
-          color="danger"
-          (click)="openCamera()">Take a Photo</ion-button>
+          <ion-list class="ion-no-margin ion-no-padding">
+            <ion-item>
+              <ion-label position="floating">व्यक्ति का नाम - Name</ion-label>
+              <ion-input 
+                type="text"
+                disabled="true"
+                [value]="monitoredUserData?.name"></ion-input>
+            </ion-item>
+            <br>
 
-        <ion-button
-          color="primary"
-          class="ion-margin-vertical btn-width"
-          type="submit">Submit</ion-button>
+            <ion-item>
+              <ion-label position="floating">पिता/पति का नाम - Father or Husband Name</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.guardian_name"></ion-input>
+            </ion-item>
+            <br>
 
-      </ion-card-content>
-    </ion-card>
+            <ion-item>
+              <ion-label position="floating">लिंग - Gender</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.gender"></ion-input>
+            </ion-item>
+            <br>
 
+            <ion-item>
+              <ion-label position="floating">उम्र - Age</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.age"></ion-input>
+            </ion-item>
+            <br>
+            <br>
+          </ion-list>
+
+
+          <h1 class="bold ion-padding-horizontal" color="dark">मोबाइल नंबर - Mobile Number</h1>
+          <ion-list class="ion-no-margin ion-no-padding">
+            <ion-item>
+              <ion-label position="floating">स्वयं का - Self</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.contact"></ion-input>
+            </ion-item>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">पड़ोसी या रिश्तेदार का नाम - Neighbour or relative</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.other_contact"></ion-input>
+            </ion-item>
+            <br>
+            <br>
+          </ion-list>
+
+
+          <h1 class="bold ion-padding-horizontal" color="dark">पता - Address</h1>
+          <ion-list class="ion-no-margin ion-no-padding">
+            <ion-item>
+              <ion-label position="floating">District</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.district"></ion-input>
+            </ion-item>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">Block</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.block"></ion-input>
+            </ion-item>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">पंचायत / नगर का नाम - Panchayat/Town Name</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.panchayat"></ion-input>
+            </ion-item>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">गाँव - Village</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.village"></ion-input>
+            </ion-item>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">वार्ड नंबर और हाउस नंबर - Ward Number & House Number</ion-label>
+              <ion-input 
+                type="text" 
+                disabled="true"
+                [value]="monitoredUserData?.ward"></ion-input>
+            </ion-item>
+            <br>
+            <br>
+          </ion-list>
+
+
+          <h1 class="bold ion-padding-horizontal" color="dark">आधिकारिक संपर्क किया गया - Official Contacted</h1>
+          <ion-list class="ion-no-margin ion-no-padding">
+            <ion-item>
+              <ion-label position="floating">नाम - Name</ion-label>
+              <ion-input 
+                type="text"
+                name="officialName"
+                formControlName="officialName" 
+                (ionBlur)="logValidationErrors()"></ion-input>
+            </ion-item>
+            <ion-item 
+              class="ion-no-padding error-list" 
+              lines="none" 
+              *ngIf="formErrors.officialName">
+                <ul lines="none">
+                  <li color="danger">{{ formErrors.officialName }} </li>
+                </ul>
+            </ion-item>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">पदनाम - Designation</ion-label>
+              <ion-input 
+                type="text"
+                name="officialDesignation"
+                formControlName="officialDesignation"
+                (ionBlur)="logValidationErrors()"></ion-input>
+            </ion-item>
+            <ion-item 
+              class="ion-no-padding error-list" 
+              lines="none" 
+              *ngIf="formErrors.officialDesignation">
+                <ul lines="none">
+                  <li color="danger">{{ formErrors.officialDesignation }} </li>
+                </ul>
+            </ion-item>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">मोबाइल - Mobile</ion-label>
+              <ion-input 
+                type="text"
+                name="officialPhone"
+                formControlName="officialPhone" 
+                (ionBlur)="logValidationErrors()"></ion-input>
+            </ion-item>
+            <ion-item 
+              class="ion-no-padding error-list" 
+              lines="none" 
+              *ngIf="formErrors.officialPhone">
+                <ul lines="none">
+                  <li color="danger">{{ formErrors.officialPhone }} </li>
+                </ul>
+            </ion-item>
+            <br>
+            <br>
+
+          </ion-list>
+
+          <h1 class="bold ion-padding-horizontal" color="dark">प्रभावित व्यक्ति की स्थिति - Condition of the Person affected</h1>
+          <ion-list class="ion-no-margin ion-no-padding">
+            <ng-container *ngIf="showSymptoms">
+              <ng-container *ngFor="let symptom of symptomsList">
+                <ion-item>
+                  <ion-label>{{ symptom.label }}</ion-label>
+                  <ion-checkbox [value]="symptom.value" name="symptoms" formControlName="symptoms" (click)="selectMember($event)"  [checked]="symptom.isChecked" color="primary" slot="start"></ion-checkbox>
+                </ion-item>
+                <br>
+              </ng-container>
+            </ng-container>
+
+            <ion-item>
+              <ion-label position="floating">क्या घर / आइसोलेशन केन्द्र में स्वयं को सीमित रखें है (Quarantined at home or center?)</ion-label>
+              <ion-input 
+                type="text"
+                name="quarantined"
+                formControlName="quarantined"
+                (ionBlur)="logValidationErrors()"></ion-input>
+            </ion-item>
+            <ion-item 
+              class="ion-no-padding error-list" 
+              lines="none" 
+              *ngIf="formErrors.quarantined">
+                <ul lines="none">
+                  <li color="danger">{{ formErrors.quarantined }} </li>
+                </ul>
+            </ion-item>
+            <br>
+            <ion-radio-group formControlName="poster">
+              <ion-row>
+                <ion-list-header class="ion-no-padding ion-padding-horizontal">
+                  <ion-label class="font">क्या मकान या घर के बाहर quarantine का पोस्टर लगा है?</ion-label>
+                </ion-list-header>
+              </ion-row>
+              
+              <ion-row class="radio-buttons">
+                <ion-col size="6" class="ion-no-padding">
+                  <ion-item>
+                    <ion-label>हाँ Yes</ion-label>
+                    <ion-radio slot="start" value="1"></ion-radio>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="6" class="ion-no-padding">
+                  <ion-item>
+                    <ion-label>नहीं No</ion-label>
+                    <ion-radio slot="start" value="0"></ion-radio>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-radio-group>
+            <br>
+            <br>
+
+            <ion-item>
+              <ion-label position="floating">Remarks</ion-label>
+              <ion-input 
+                type="text"
+                name="remarks"
+                formControlName="remarks"
+                (ionBlur)="logValidationErrors()"></ion-input>
+            </ion-item>
+            <ion-item 
+              class="ion-no-padding error-list" 
+              lines="none" 
+              *ngIf="formErrors.remarks">
+                <ul lines="none">
+                  <li color="danger">{{ formErrors.remarks }} </li>
+                </ul>
+            </ion-item>
+            <br>
+
+          </ion-list>
+
+          <!-- Display Captured Picture - Starts-->
+          <ion-grid id="image" *ngIf="picture" class="ion-no-padding ion-no-margin">
+            <ion-row>
+              <ion-col class="ion-no-padding relative">
+                <img [src]="picture" width="100%" height="150px">
+                <ion-text color="dark" class="absolute-text-2">
+                  <p><ion-text class="bold">Address: </ion-text> {{ address }}</p>
+                  <P><ion-text class="bold">Lat: </ion-text> {{ lat }}</P>
+                  <P><ion-text class="bold">Long: </ion-text> {{ long }}</P>
+                </ion-text>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+          <!-- Display Captured Picture - End -->
+
+
+          <ion-button
+            color="danger"
+            (click)="openCamera()">Take a Photo</ion-button>
+
+          <ion-button
+            color="primary"
+            class="ion-margin-vertical btn-width"
+            type="submit">Submit</ion-button>
+
+        </ion-card-content>
+
+      </ion-card>
+    </form>
   </ion-grid>
 
 </ion-content>

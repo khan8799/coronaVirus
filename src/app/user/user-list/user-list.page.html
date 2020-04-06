@@ -22,7 +22,7 @@
 
         <h1>Assigned User</h1>
 
-        <p>(Logged In As Field Exec. 481)</p>
+        <p>(Logged In As Field Exec. {{ userData?.id }})</p>
 
         <ion-button
           color="danger"
@@ -48,11 +48,12 @@
                 okText="Okay"
                 cancelText="Close"
                 class="ion-no-padding ion-padding-horizontal"
-                formControlName="block">
+                formControlName="block"
+                (ionChange)="getPanchayatList($event)">
                   <ion-select-option value="all">All</ion-select-option>
-                  <ion-select-option value="blonde">Blonde</ion-select-option>
-                  <ion-select-option value="black">Black</ion-select-option>
-                  <ion-select-option value="red">Red</ion-select-option>
+                  <ion-select-option
+                    *ngFor="let blockLists of blockLists$ | async"
+                    [value]="blockLists.block">{{ blockLists.block }}</ion-select-option>
               </ion-select>
             </ion-col>
             <ion-col size="6">
@@ -64,9 +65,9 @@
                 class="ion-no-padding ion-padding-horizontal"
                 formControlName="panchayat">
                   <ion-select-option value="all">All</ion-select-option>
-                  <ion-select-option value="blonde">Blonde</ion-select-option>
-                  <ion-select-option value="black">Black</ion-select-option>
-                  <ion-select-option value="red">Red</ion-select-option>
+                  <ion-select-option
+                    *ngFor="let panchayatLists of panchayatLists$ | async"
+                    [value]="panchayatLists.gp">{{ panchayatLists.gp }}</ion-select-option>
               </ion-select>
             </ion-col>
           </ion-row>
@@ -110,7 +111,7 @@
             color="primary"
             size="small"
             fill="outline"
-            (click)="logout">Reset</ion-button>
+            (click)="clearFilter()">Reset</ion-button>
         </div>
         
       </ion-card-content>
@@ -163,7 +164,7 @@
           <ion-row>
             <ion-col></ion-col>
             <ion-col>{{ person.ward }}</ion-col>
-            <ion-col>{{ person.qurantined }}</ion-col>
+            <ion-col>{{ person.quarantined }} {{ person.datetime }}</ion-col>
             <ion-col>{{ person.status }}</ion-col>
           </ion-row>
         </ion-grid>

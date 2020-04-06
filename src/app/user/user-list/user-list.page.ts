@@ -17,6 +17,8 @@ export class UserListPage implements OnInit {
   public userData;
   public userList;
   public filterUserist;
+  public blockLists$;
+  public panchayatLists$;
 
   constructor(
     private fb: FormBuilder,
@@ -30,6 +32,9 @@ export class UserListPage implements OnInit {
   ngOnInit() {
     this.initializeForm();
     this.getUserData();
+
+    this.storage.remove('userForm');
+    this.storage.remove('symptoms');
   }
 
   initializeForm(): void {
@@ -44,7 +49,10 @@ export class UserListPage implements OnInit {
 
   async getUserData() {
     this.userData = await this.storage.get('userData');
+    if (!this.userData) return this.navController.navigateRoot(['/']);
+
     this.getUserList();
+    this.getBlockList();
   }
 
   async getUserList() {
@@ -56,7 +64,7 @@ export class UserListPage implements OnInit {
       return;
     }
 
-    await this.loadingService.presentLoading('Fetching infected persons...');
+    await this.loadingService.presentLoading('Fetching monitoring list...');
     const formData = new FormData();
 
     formData.append('user_id', this.userData.id);
@@ -74,20 +82,86 @@ export class UserListPage implements OnInit {
         );
   }
 
+  getBlockList() {
+    const formData = new FormData();
+    formData.append('district', this.userData.district);
+
+    this.blockLists$ = this.userService.blockList(formData);
+  }
+
+  getPanchayatList(ev) {
+    const formData = new FormData();
+    formData.append('block', ev.target.value);
+
+    this.panchayatLists$ = this.userService.panchayatList(formData);
+  }
+
   searchUser() {
     const userObject = { ...this.userSearchForm.value };
 
-    this.filterUserist = this.userList.filter(list => {
-      const name = userObject.name === '' ? '111111111' : userObject.name.toLowerCase();
+    if (userObject.block) {
+      this.filterUserist = this.userList.filter(list => {
+        if (list.block.includes(userObject.block)) { return true; }
+      });
 
-      if (
-        list.name.toLowerCase().includes(name) ||
-        list.id.toString() === userObject.uid.toString() ||
-        list.contact === userObject.phone
-      ) {
-        return true;
+      if (userObject.panchayat) {
+        this.filterUserist = this.filterUserist.filter(list => {
+          if (list.panchayat.includes(userObject.panchayat)) { return true; }
+        });
       }
+
+      if (userObject.name) this.filterByName(userObject.name);
+      if (userObject.id) this.filterById(userObject.id);
+      if (userObject.phone) this.filterByPhone(userObject.phone);
+      return;
+    }
+
+    if (userObject.name) {
+      this.filterUserist = this.userList.filter(list => {
+        if (list.name.toLowerCase().includes(userObject.name.toLowerCase())) { return true; }
+      });
+    }
+
+    if (userObject.uid) {
+      this.filterUserist = this.userList.filter(list => {
+        if (list.id.toString() === userObject.uid.toString()) { return true; }
+      });
+    }
+
+    if (userObject.phone) {
+      this.filterUserist = this.userList.filter(list => {
+        if (list.contact.toString().includes(userObject.phone.toString())) { return true; }
+      });
+    }
+  }
+
+  filterByName(name) {
+    this.filterUserist = this.filterUserist.filter(list => {
+      if (list.name.toLowerCase().includes(name.toLowerCase())) { return true; }
     });
+  }
+
+  filterById(id) {
+    this.filterUserist = this.filterUserist.filter(list => {
+      if (list.id.toString() === id.toString()) { return true; }
+    });
+  }
+
+  filterByPhone(phone) {
+    this.filterUserist = this.filterUserist.filter(list => {
+      if (list.contact.toString().includes(phone.toString())) { return true; }
+    });
+  }
+
+  clearFilter() {
+    this.userSearchForm.patchValue({
+      block: '',
+      panchayat: '',
+      uid: '',
+      name: '',
+      phone: ''
+    });
+    this.filterUserist = this.userList;
   }
 
   openForm(id) {
@@ -104,9 +178,7 @@ export class UserListPage implements OnInit {
 
   async dismissLoading(err: string) {
     await this.loadingService.dismissLoading();
-    if (err) {
-      await this.toastService.presentToast(err);
-    }
+    if (err) await this.toastService.presentToast(err);
   }
 
 }
