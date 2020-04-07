@@ -351,7 +351,7 @@ export class UserDetailPage implements OnInit {
     }
   }
 
-    startUpload(filePath) {
+  startUpload(filePath) {
       this.file
         .resolveLocalFilesystemUrl(filePath)
         .then(

@@ -72,13 +72,13 @@ export class CameraComponent implements OnInit {
           (res) => {
             console.log(imageData);
             this.picture = 'data:image/jpeg;base64,' + imageData;
-            this.storage.set('imagePath', {filePath: imageData, base64Image: this.picture}),
+            this.storage.set('imagePath', {filePath: imageData, base64Image: this.picture});
             // this.isCameraOpen = false;
 
-            // const currentName = imageData.substr(imageData.lastIndexOf('/') + 1);
-            // const currentPath = imageData.substr(0, imageData.lastIndexOf('/') + 1);
+            const currentName = imageData.substr(imageData.lastIndexOf('/') + 1);
+            const currentPath = imageData.substr(0, imageData.lastIndexOf('/') + 1);
 
-            // this.copyFileToLocalDir(currentPath, currentName, this.createFileName());
+            this.copyFileToLocalDir(currentPath, currentName, this.createFileName());
 
             this.checkLocation();
           },
@@ -89,6 +89,13 @@ export class CameraComponent implements OnInit {
     );
   }
 
+  createFileName() {
+    const d = new Date(),
+          n = d.getTime(),
+          newFilename = n + '.jpg';
+    return newFilename;
+  }
+
   copyFileToLocalDir(currentPath, currentName, newFileName) {
     this.file
         .copyFile(currentPath, currentName, this.file.dataDirectory, newFileName)
@@ -96,13 +103,6 @@ export class CameraComponent implements OnInit {
           _ => this.storage.set('imagePath', {filePath: newFileName, picture: this.picture}),
           error => console.log(error)
         );
-  }
-
-  createFileName() {
-    const d = new Date(),
-          n = d.getTime(),
-          newFilename = n + '.jpg';
-    return newFilename;
   }
 
   pathForImage(img) {
