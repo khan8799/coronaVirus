@@ -31,7 +31,8 @@ export class LoginPage implements OnInit {
 
   async getUserData() {
     const userData = await this.storage.get('userData');
-    if (userData) { this.navController.navigateRoot(['/user-list']); }
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) { this.navController.navigateRoot(['/user-list']); }
   }
 
   initializeForm(): void {

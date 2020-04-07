@@ -61,6 +61,9 @@ export class UserDetailPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    const accessToken = localStorage.getItem('accessToken');
+    console.log(accessToken);
+    if (accessToken === null) { this.navController.navigateRoot(['/']); }
     this.initializeForm();
     this.activatedRoute.queryParams.subscribe(params => {
       this.infectedPersonId = params.id;
@@ -139,6 +142,8 @@ export class UserDetailPage implements OnInit {
   async checkFormdata() {
     const userFormdataExists = await this.storage.get('userForm');
     const symptomsExist = await this.storage.get('symptoms');
+    this.slot = await this.storage.get('slot');
+    this.date = await this.storage.get('date');
 
     if (symptomsExist) {
       this.showForm = true;
@@ -162,6 +167,11 @@ export class UserDetailPage implements OnInit {
           poster: userFormdataExists.poster,
           remarks: userFormdataExists.remarks,
         });
+
+        this.userDataExistForm.patchValue({
+          date: this.date,
+          slot: this.slot
+        });
       }, 100);
     }
 
@@ -182,22 +192,36 @@ export class UserDetailPage implements OnInit {
   async checkUserdataExistForm() {
     await this.loadingService.presentLoading('Checking data exist...');
     const form  = this.userDataExistForm.value;
-    const date = new Date(form.date);
-    const month = date.getMonth() > 9 ? date.getMonth() : '0' + date.getMonth();
-    const day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
+
+    const year  = new Date(form.date).getUTCFullYear();
+    let month   = new Date(form.date).getUTCMonth() + 1;
+    let day     = new Date(form.date).getUTCDate();
+
+    month = month > 9 ? month : parseInt('0' + month, 10);
+    day   = day > 9 ? day : parseInt('0' + day, 10);
+
     const formData = new FormData();
     formData.append('user_id', this.userData.id);
     formData.append('pid', this.infectedPersonId);
     formData.append('slot', form.time);
-    formData.append('date', date.getFullYear() + '-' + month + '-' + day);
+    formData.append('date', year + '-' + month + '-' + day);
+
     this.storage.set('slot', form.time);
     this.storage.set('date', form.date);
+    this.date = form.date;
+    this.slot = form.time;
+
     this.userService
         .checkEntrySlot(formData)
         .subscribe(
           (resp) => {
-            if (resp.errorCode === 0) this.showForm = true;
-            else this.showExistMessage = true;
+            if (resp.errorCode === 0) {
+              this.showForm = true;
+              this.showExistMessage = false;
+            } else {
+              this.showForm = false;
+              this.showExistMessage = true;
+            }
             this.dismissLoading('');
           },
           err => this.dismissLoading(err.message)
@@ -219,8 +243,6 @@ export class UserDetailPage implements OnInit {
     }
 
     await this.loadingService.presentLoading('Submitting form...');
-    this.slot = await this.storage.get('slot');
-    this.date = await this.storage.get('date');
     const formData = new FormData();
 
     formData.append('user_id', this.userData.id);

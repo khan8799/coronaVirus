@@ -27,7 +27,7 @@
 
         <h2>प्रभावित व्यक्तियों की निगरानी और ट्रैकिंग के उद्देश्य के लिए (For the Purpose of Monitoring & Tracking of Affected Persons)</h2>
 
-        <p>(Logged In As Field Exec. {{ userData?.id }})</p>
+        <p>(Logged In As {{ userData?.name }})</p>
       </div>
     </ion-card>
 
@@ -101,8 +101,8 @@
             <p>
               <ion-text color="medium">
                 Unique ID: {{ infectedPersonId }}
-                Date Selected: 3-Apr-2020
-                Time: Evening
+                Date Selected: {{ date | date}}
+                Time: {{ slot }}
               </ion-text>
             </p>
           </div>
@@ -419,12 +419,14 @@
       </ion-card>
     </form>
 
-    <div *ngIf="showExistMessage" class="ion-text-center">
-      <h1>
+    <div *ngIf="showExistMessage" class="ion-margin ion-text-center">
+      <br>
+      <h1 class="ion-margin-vertical">
         <ion-text color="danger">
           Record already exists for Unique ID {{ infectedPersonId }} of {{ userDataExistForm.value.date | date }} - {{ userDataExistForm.value.time }}
         </ion-text>
       </h1>
+      <br><br>
     </div>
     
   </ion-grid>

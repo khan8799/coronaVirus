@@ -30,9 +30,11 @@ export class UserListPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    const accessToken = localStorage.getItem('accessToken');
+    console.log(accessToken);
+    if (accessToken === null) { this.navController.navigateRoot(['/']); }
     this.initializeForm();
     this.getUserData();
-
     this.storage.remove('userForm');
     this.storage.remove('symptoms');
   }
