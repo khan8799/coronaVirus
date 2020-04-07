@@ -4,6 +4,9 @@ import { NavController } from '@ionic/angular';
 import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 import { Geolocation} from '@ionic-native/geolocation/ngx';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
+import { File, FileEntry } from '@ionic-native/file/ngx';
+import { Storage } from '@ionic/storage';
+import { WebView } from '@ionic-native/ionic-webview/ngx';
 
 @Component({
   selector: 'app-camera',
@@ -14,7 +17,6 @@ export class CameraComponent implements OnInit {
   picture       = '';
   isCameraOpen  = false;
   showIcons     = false;
-
   // Flash Mode
   flashModes: Promise<any>;
   activeFlash = '';
@@ -29,6 +31,8 @@ export class CameraComponent implements OnInit {
     public geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,
     private activatedRoute: ActivatedRoute,
+    private file: File,
+    private storage: Storage
   ) { }
 
   ngOnInit() {
@@ -67,6 +71,12 @@ export class CameraComponent implements OnInit {
           (res) => {
             this.picture = 'data:image/jpeg;base64,' + imageData;
             this.isCameraOpen = false;
+            this.file.resolveLocalFilesystemUrl(imageData).then((entry: FileEntry) => {
+              entry.file(file => {
+                console.log(file);
+                this.readFile(file);
+              });
+            });
             this.checkLocation();
           },
           (err) => console.log(err)
@@ -74,6 +84,44 @@ export class CameraComponent implements OnInit {
       },
       (err) => console.log(err)
     );
+  }
+
+  upload() {
+    const  url = 'your REST API url';
+    const date = new Date().valueOf();
+
+    // Replace extension according to your media type
+    const imageName = date + '.jpeg';
+    // call method that creates a blob from dataUri
+    const imageBlob = this.dataURItoBlob(this.imageData);
+    const imageFile = new File([imageBlob], imageName, { type: 'image/jpeg' })
+
+    const  postData = new FormData();
+    postData.append('file', imageFile);
+  }
+
+  dataURItoBlob(dataURI) {
+    const byteString = window.atob(dataURI);
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const int8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < byteString.length; i++) {
+      int8Array[i] = byteString.charCodeAt(i);
+     }
+    const blob = new Blob([int8Array], { type: 'image/jpeg' });
+    return blob;
+  }
+
+  readFile(file: any) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const imgBlob = new Blob([reader.result], { type: file.type });
+      this.storage.set('image', {
+        blob: imgBlob,
+        fileName: file.name,
+        picture: this.picture
+      });
+    };
+    reader.readAsArrayBuffer(file);
   }
 
   stopCamera() {
@@ -142,10 +190,11 @@ export class CameraComponent implements OnInit {
   }
 
   navigate() {
-    localStorage.setItem('image', this.picture);
-    localStorage.setItem('address', this.address);
-    localStorage.setItem('lat', this.lat);
-    localStorage.setItem('long', this.long);
+    this.storage.set('location', {
+      address: this.address,
+      lat: this.lat,
+      long: this.long,
+    });
     const navigationExtras: NavigationExtras = {
       queryParams: { id: this.infectedPersonId }
     };

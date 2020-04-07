@@ -16,6 +16,7 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { AuthInterceptor } from './interceptor/AuthInterceptor';
 import { IonicStorageModule } from '@ionic/storage';
+import { File } from '@ionic-native/file/ngx';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { IonicStorageModule } from '@ionic/storage';
     CameraPreview,
     Geolocation,
     NativeGeocoder,
+    File,
   ],
   bootstrap: [AppComponent]
 })

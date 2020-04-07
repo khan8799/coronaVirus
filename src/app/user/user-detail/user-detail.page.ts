@@ -39,6 +39,8 @@ export class UserDetailPage implements OnInit {
     remarks: '',
   };
 
+  public imgBlob;
+  public fileName;
   public slot;
   public date;
 
@@ -55,27 +57,39 @@ export class UserDetailPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log(this.todaysDate);
     this.initializeForm();
     this.activatedRoute.queryParams.subscribe(params => {
       this.infectedPersonId = params.id;
       if (!this.infectedPersonId) { this.navController.navigateRoot(['/user-list']); }
     });
 
-    this.picture  = localStorage.getItem('image');
-    this.lat      = localStorage.getItem('lat');
-    this.long     = localStorage.getItem('long');
-    this.address  = localStorage.getItem('address');
-
-    localStorage.removeItem('image');
-    localStorage.removeItem('lat');
-    localStorage.removeItem('long');
-    localStorage.removeItem('address');
+    this.getLocation();
+    this.getImage();
 
     if (this.picture && this.lat && this.long) { this.scrollToItemFn(); }
     this.getUserData();
     this.getMonitoredUser();
     this.userForm.valueChanges.subscribe(data => this.logValidationErrors());
+  }
+
+  async getLocation() {
+    const loc = await this.storage.get('location');
+    if (!loc) return;
+
+    this.lat      = loc.lat;
+    this.long     = loc.long;
+    this.address  = loc.address;
+    this.storage.remove('location');
+  }
+
+  async getImage() {
+    const image = await this.storage.get('image');
+    if (!image) return;
+
+    this.picture      = image.picture;
+    this.imgBlob      = image.blob;
+    this.fileName      = image.fileName;
+    this.storage.remove('image');
   }
 
   initializeForm(): void {
@@ -221,11 +235,10 @@ export class UserDetailPage implements OnInit {
     formData.append('poster', this.userForm.value.poster);
     formData.append('remarks', this.userForm.value.remarks);
     formData.append('panchayat', this.userForm.value.panchayat);
-    formData.append('image', this.picture);
     formData.append('lat', this.lat);
     formData.append('long', this.long);
     formData.append('loc_address', this.address);
-
+    formData.append('image', this.imgBlob, this.fileName);
     console.log(formData);
 
     this.userService
