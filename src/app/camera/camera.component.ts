@@ -4,6 +4,10 @@ import { NavController } from '@ionic/angular';
 import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 import { Geolocation} from '@ionic-native/geolocation/ngx';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
+import { File } from '@ionic-native/file/ngx';
+import { Storage } from '@ionic/storage';
+import { WebView } from '@ionic-native/ionic-webview/ngx';
+import { FilePath } from '@ionic-native/file-path/ngx';
 
 @Component({
   selector: 'app-camera',
@@ -14,7 +18,6 @@ export class CameraComponent implements OnInit {
   picture       = '';
   isCameraOpen  = false;
   showIcons     = false;
-
   // Flash Mode
   flashModes: Promise<any>;
   activeFlash = '';
@@ -29,6 +32,10 @@ export class CameraComponent implements OnInit {
     public geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,
     private activatedRoute: ActivatedRoute,
+    private file: File,
+    private storage: Storage,
+    private webview: WebView,
+    private filePath: FilePath,
   ) { }
 
   ngOnInit() {
@@ -65,15 +72,42 @@ export class CameraComponent implements OnInit {
       (imageData) => {
         this.customizeCameraService.stopCamera().then(
           (res) => {
-            this.picture = 'data:image/jpeg;base64,' + imageData;
             this.isCameraOpen = false;
-            this.checkLocation();
+
+            this.filePath
+                .resolveNativePath('file://' + imageData[0])
+                .then(filePath => {
+                    const correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
+                    const currentName = filePath.substring(filePath.lastIndexOf('/') + 1);
+                    this.copyFileToLocalDir(correctPath, currentName, this.createFileName());
+                });
+
           },
           (err) => console.log(err)
         );
       },
       (err) => console.log(err)
     );
+  }
+
+  createFileName() {
+    const d = new Date(),
+          n = d.getTime(),
+          newFilename = n + '.jpg';
+    return newFilename;
+  }
+
+  copyFileToLocalDir(currentPath, currentName, newFileName) {
+    this.file
+        .copyFile(currentPath, currentName, this.file.dataDirectory, newFileName)
+        .then(
+          res => {
+            this.storage.set('imagePath', res);
+            this.checkLocation();
+            console.log(res);
+          },
+          error => console.log(error)
+        );
   }
 
   stopCamera() {
@@ -142,14 +176,14 @@ export class CameraComponent implements OnInit {
   }
 
   navigate() {
-    localStorage.setItem('image', this.picture);
-    localStorage.setItem('address', this.address);
-    localStorage.setItem('lat', this.lat);
-    localStorage.setItem('long', this.long);
+    this.storage.set('location', {
+      address: this.address,
+      lat: this.lat,
+      long: this.long,
+    });
     const navigationExtras: NavigationExtras = {
       queryParams: { id: this.infectedPersonId }
     };
-    console.log('dfdvad');
     this.navController.navigateRoot(['/user-detail'], navigationExtras);
   }
 

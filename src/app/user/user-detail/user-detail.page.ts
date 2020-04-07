@@ -8,6 +8,8 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UserService } from 'src/app/services/user.service';
 import { CustomValidationMessages } from 'src/app/custom-validation-messages';
+import { File, FileEntry } from '@ionic-native/file/ngx';
+import { WebView } from '@ionic-native/ionic-webview/ngx';
 
 @Component({
   selector: 'app-user-detail',
@@ -39,6 +41,8 @@ export class UserDetailPage implements OnInit {
     remarks: '',
   };
 
+  public imgBlob;
+  public fileName;
   public slot;
   public date;
 
@@ -52,30 +56,42 @@ export class UserDetailPage implements OnInit {
     private loadingService: LoadingService,
     private toastService: ToastService,
     private userService: UserService,
+    private file: File,
+    private webview: WebView,
   ) { }
 
   ngOnInit() {
-    console.log(this.todaysDate);
     this.initializeForm();
     this.activatedRoute.queryParams.subscribe(params => {
       this.infectedPersonId = params.id;
       if (!this.infectedPersonId) { this.navController.navigateRoot(['/user-list']); }
     });
 
-    this.picture  = localStorage.getItem('image');
-    this.lat      = localStorage.getItem('lat');
-    this.long     = localStorage.getItem('long');
-    this.address  = localStorage.getItem('address');
+    this.getLocation();
+    this.getImage();
 
-    localStorage.removeItem('image');
-    localStorage.removeItem('lat');
-    localStorage.removeItem('long');
-    localStorage.removeItem('address');
-
-    if (this.picture && this.lat && this.long) { this.scrollToItemFn(); }
     this.getUserData();
     this.getMonitoredUser();
     this.userForm.valueChanges.subscribe(data => this.logValidationErrors());
+  }
+
+  async getLocation() {
+    const loc = await this.storage.get('location');
+    if (!loc) return;
+
+    this.lat      = loc.lat;
+    this.long     = loc.long;
+    this.address  = loc.address;
+    this.storage.remove('location');
+  }
+
+  async getImage() {
+    const image = await this.storage.get('imagePath');
+    console.log(image);
+    if (!image) return;
+
+    // this.startUpload(image.filePath);
+    this.imgBlob = this.startUpload(image);
   }
 
   initializeForm(): void {
@@ -174,9 +190,8 @@ export class UserDetailPage implements OnInit {
     formData.append('pid', this.infectedPersonId);
     formData.append('slot', form.time);
     formData.append('date', date.getFullYear() + '-' + month + '-' + day);
-    this.date = form.date;
-    this.slot = form.time;
-
+    this.storage.set('slot', form.time);
+    this.storage.set('date', form.date);
     this.userService
         .checkEntrySlot(formData)
         .subscribe(
@@ -198,7 +213,7 @@ export class UserDetailPage implements OnInit {
       return;
     }
 
-    if (!this.picture) {
+    if (!this.imgBlob) {
       await this.toastService.presentToast('Please click image');
       return;
     }
@@ -221,12 +236,10 @@ export class UserDetailPage implements OnInit {
     formData.append('poster', this.userForm.value.poster);
     formData.append('remarks', this.userForm.value.remarks);
     formData.append('panchayat', this.userForm.value.panchayat);
-    formData.append('image', this.picture);
     formData.append('lat', this.lat);
     formData.append('long', this.long);
     formData.append('loc_address', this.address);
-
-    console.log(formData);
+    formData.append('image', this.imgBlob, this.fileName);
 
     this.userService
         .userForm(formData)
@@ -237,7 +250,7 @@ export class UserDetailPage implements OnInit {
               setTimeout(() => {
                 this.navController.navigateRoot(['/user-list']);
               }, 200);
-            }
+            } else this.dismissLoading(resp.message);
           },
           err => this.dismissLoading(err.message)
         );
@@ -307,8 +320,6 @@ export class UserDetailPage implements OnInit {
   openCamera() {
     this.storage.set('userForm', this.userForm.value);
     this.storage.set('symptoms', this.selectedArray);
-    this.storage.set('slot', this.slot);
-    this.storage.set('date', this.date);
 
     const navigationExtras: NavigationExtras = {
       queryParams: { id: this.infectedPersonId }
@@ -319,7 +330,6 @@ export class UserDetailPage implements OnInit {
   scrollToItemFn() {
     setTimeout(() => {
       const el = document.getElementById('image');
-      console.log(el);
       if (el) {
         el.scroll();
         el.scrollIntoView({behavior: 'smooth'});
@@ -332,6 +342,34 @@ export class UserDetailPage implements OnInit {
     if (err) {
       await this.toastService.presentToast(err);
     }
+  }
+
+  startUpload(filePath) {
+    this.storage.remove('imagePath');
+    this.storage.remove('date');
+    this.storage.remove('slot');
+    this.picture = this.webview.convertFileSrc(this.file.dataDirectory + filePath.name);
+
+    this.fileName = filePath.name;
+    this.file
+        .resolveLocalFilesystemUrl(filePath.nativeURL)
+        .then(
+          entry => {
+            ( entry as FileEntry).file(file => this.readFile(file));
+          }
+        )
+        .catch(err => console.log(err));
+  }
+
+  readFile(file: any) {
+    if (this.picture) { this.scrollToItemFn(); }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const formdata = new FormData();
+      const imgBlob = new Blob([reader.result], { type: file.type });
+      this.imgBlob = imgBlob;
+    };
+    reader.readAsArrayBuffer(file);
   }
 
 }
