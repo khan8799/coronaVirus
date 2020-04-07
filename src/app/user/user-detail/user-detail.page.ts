@@ -8,6 +8,7 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UserService } from 'src/app/services/user.service';
 import { CustomValidationMessages } from 'src/app/custom-validation-messages';
+import { File, FileEntry } from '@ionic-native/file/ngx';
 
 @Component({
   selector: 'app-user-detail',
@@ -54,6 +55,7 @@ export class UserDetailPage implements OnInit {
     private loadingService: LoadingService,
     private toastService: ToastService,
     private userService: UserService,
+    private file: File,
   ) { }
 
   ngOnInit() {
@@ -66,7 +68,6 @@ export class UserDetailPage implements OnInit {
     this.getLocation();
     this.getImage();
 
-    if (this.picture && this.lat && this.long) { this.scrollToItemFn(); }
     this.getUserData();
     this.getMonitoredUser();
     this.userForm.valueChanges.subscribe(data => this.logValidationErrors());
@@ -83,13 +84,16 @@ export class UserDetailPage implements OnInit {
   }
 
   async getImage() {
-    const image = await this.storage.get('image');
+    const image = await this.storage.get('imagePath');
     if (!image) return;
 
-    this.picture      = image.picture;
-    this.imgBlob      = image.blob;
-    this.fileName      = image.fileName;
-    this.storage.remove('image');
+    console.log(image.filePath);
+    // this.startUpload(image.filePath);
+    this.picture = image.base64Image;
+    this.imgBlob = this.image(image.base64Image);
+    console.log(this.imgBlob);
+    this.storage.remove('imagePath');
+    if (this.picture && this.lat && this.long) { this.scrollToItemFn(); }
   }
 
   initializeForm(): void {
@@ -238,7 +242,7 @@ export class UserDetailPage implements OnInit {
     formData.append('lat', this.lat);
     formData.append('long', this.long);
     formData.append('loc_address', this.address);
-    formData.append('image', this.imgBlob, this.fileName);
+    formData.append('image', this.imgBlob, this.userData.id);
     console.log(formData);
 
     this.userService
@@ -250,7 +254,7 @@ export class UserDetailPage implements OnInit {
               setTimeout(() => {
                 this.navController.navigateRoot(['/user-list']);
               }, 200);
-            }
+            } else this.dismissLoading(resp.message);
           },
           err => this.dismissLoading(err.message)
         );
@@ -345,6 +349,46 @@ export class UserDetailPage implements OnInit {
     if (err) {
       await this.toastService.presentToast(err);
     }
+  }
+
+    startUpload(filePath) {
+      this.file
+        .resolveLocalFilesystemUrl(filePath)
+        .then(
+          entry => {
+            ( entry as FileEntry).file(file => this.readFile(file));
+          }
+        )
+        .catch(err => console.log(err));
+  }
+
+  readFile(file: any) {
+    console.log(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const formdata = new FormData();
+      const imgBlob = new Blob([reader.result], { type: file.type });
+      this.storage.set('image', {
+        blob: imgBlob,
+        fileName: file.name,
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  image(base64Image) {
+    let byteString;
+    if (base64Image.split(',')[0].indexOf('base64') >= 0)
+      byteString = atob(base64Image.split(',')[1]);
+
+    const mimeString = base64Image.split(',')[0].split(':')[1].split(';')[0];
+
+    const ia = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], { type: mimeString });
   }
 
 }
