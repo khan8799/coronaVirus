@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  apiEndpointProxy: 'https://bcims.in/api/',
+  apiEndpointLive: 'https://bcims.bihar.gov.in/api/',
 };
 
 /*

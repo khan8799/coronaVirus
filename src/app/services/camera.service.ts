@@ -15,13 +15,14 @@ export class CameraService {
     tapPhoto: true,
     previewDrag: false,
     toBack: true,
+    storeToFile: true
   };
 
   // Take picture options
   pictureOpts: CameraPreviewPictureOptions = {
     width: 360,
     height: 640,
-    quality: 85
+    quality: 50,
   };
 
   constructor(

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="danger">
     <ion-title>
-      The Covid Tracker
+      चक्षु - The Covid Tracker
     </ion-title>
     <ion-buttons slot="end">
       <ion-button id="changeText" onClick="toggleText()">
@@ -22,14 +22,19 @@
 
         <h1>Assigned User</h1>
 
-        <p>(Logged In As Field Exec. 481)</p>
+        <p>(Logged In As Field Exec. {{ userData?.id }})</p>
 
         <ion-button
           color="danger"
-          (click)="logout">Logout</ion-button>
+          (click)="logout()">Logout</ion-button>
       </div>
     </ion-card>
 
+
+    <!--
+    | Search Form STARTS
+    -->
+    <form [formGroup]="userSearchForm" (ngSubmit)="searchUser()">
     <ion-card class="ion-no-margin ion-margin-vertical bottom-radius-form shadow px-3">
 
       <ion-card-content>
@@ -38,22 +43,31 @@
           <ion-row>
             <ion-col size="6">
               <ion-select
+                placeholder="Block"
+                interface="action-sheet"
+                okText="Okay"
+                cancelText="Close"
                 class="ion-no-padding ion-padding-horizontal"
-                interface="popover">
-                  <ion-select-option value="brown">Brown</ion-select-option>
-                  <ion-select-option value="blonde">Blonde</ion-select-option>
-                  <ion-select-option value="black">Black</ion-select-option>
-                  <ion-select-option value="red">Red</ion-select-option>
+                formControlName="block"
+                (ionChange)="getPanchayatList($event)">
+                  <ion-select-option value="all">All</ion-select-option>
+                  <ion-select-option
+                    *ngFor="let blockLists of blockLists$ | async"
+                    [value]="blockLists.block">{{ blockLists.block }}</ion-select-option>
               </ion-select>
             </ion-col>
             <ion-col size="6">
               <ion-select
+                placeholder="Panchayat"
+                interface="action-sheet"
+                okText="Okay"
+                cancelText="Close"
                 class="ion-no-padding ion-padding-horizontal"
-                interface="popover">
-                  <ion-select-option value="brown">Brown</ion-select-option>
-                  <ion-select-option value="blonde">Blonde</ion-select-option>
-                  <ion-select-option value="black">Black</ion-select-option>
-                  <ion-select-option value="red">Red</ion-select-option>
+                formControlName="panchayat">
+                  <ion-select-option value="all">All</ion-select-option>
+                  <ion-select-option
+                    *ngFor="let panchayatLists of panchayatLists$ | async"
+                    [value]="panchayatLists.gp">{{ panchayatLists.gp }}</ion-select-option>
               </ion-select>
             </ion-col>
           </ion-row>
@@ -62,23 +76,26 @@
             <ion-label position="floating">Search By Unique ID</ion-label>
             <ion-input
               type="text" 
-              name="userName"
+              name="uid"
+              formControlName="uid"
               autofocus="true"></ion-input>
           </ion-item>
 
           <ion-item>
             <ion-label position="floating">Search By Name</ion-label>
             <ion-input
-              type="password"
-              name="password"
+              type="text"
+              name="name"
+              formControlName="name"
               autocomplete="off"></ion-input>
           </ion-item>
 
           <ion-item>
             <ion-label position="floating">Search By Mobile No.</ion-label>
             <ion-input
-              type="password"
-              name="password"
+              type="text"
+              name="phone"
+              formControlName="phone"
               autocomplete="off"></ion-input>
           </ion-item>
 
@@ -94,17 +111,22 @@
             color="primary"
             size="small"
             fill="outline"
-            (click)="logout">Reset</ion-button>
+            (click)="clearFilter()">Reset</ion-button>
         </div>
         
       </ion-card-content>
 
     </ion-card>
+    </form>
+    <!--
+    | Search Form ENDS
+    -->
 
-    <ion-card class="ion-no-margin ion-margin-vertical">
+
+    <ion-card class="ion-no-margin ion-margin-vertical" *ngIf="filterUserist">
       <ion-card-content>
 
-        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of [1, 2, 3, 4]">
+        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of filterUserist">
           <ion-row class="heading">
             <ion-col>U. ID</ion-col>
             <ion-col>Name</ion-col>
@@ -113,11 +135,11 @@
           </ion-row>
           <ion-row>
             <ion-col>
-              <ion-text (click)="openForm(person)" color="primary">182{{ person }}</ion-text>
+              <ion-text (click)="openForm(person.id)" color="primary">{{ person.id }}</ion-text>
             </ion-col>
-            <ion-col>Mohammad Farman</ion-col>
-            <ion-col>23</ion-col>
-            <ion-col>8840002768</ion-col>
+            <ion-col>{{ person.name }}</ion-col>
+            <ion-col>{{ person.age }}</ion-col>
+            <ion-col>{{ person.contact }}</ion-col>
           </ion-row>
 
           <ion-row class="heading">
@@ -128,9 +150,9 @@
           </ion-row>
           <ion-row>
             <ion-col></ion-col>
-            <ion-col></ion-col>
-            <ion-col>Baksanda</ion-col>
-            <ion-col>Madani</ion-col>
+            <ion-col>{{ person.other_contact }}</ion-col>
+            <ion-col>{{ person.panchayat }}</ion-col>
+            <ion-col>{{ person.village }}</ion-col>
           </ion-row>
 
           <ion-row class="heading">
@@ -141,9 +163,12 @@
           </ion-row>
           <ion-row>
             <ion-col></ion-col>
-            <ion-col>10</ion-col>
-            <ion-col>at home</ion-col>
-            <ion-col>Monitoring Started</ion-col>
+            <ion-col>{{ person.ward }}</ion-col>
+            <ion-col>
+              {{ person.quarantined === 'at_isolation' ? 'At Isolation Camp' : person.quarantined === 'at_home' ? 'At Home' : person.quarantined}} 
+              (Last Entry: {{ person.datetime | date:'dd-MM-yyyy' }} {{ (person.datetime | date:'aa') === 'AM' ? 'Morning' : 'Evening'}})
+            </ion-col>
+            <ion-col>{{ person.status }}</ion-col>
           </ion-row>
         </ion-grid>
 

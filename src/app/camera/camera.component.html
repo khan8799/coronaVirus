@@ -3,10 +3,6 @@
   <ion-row>
     <ion-col class="ion-no-padding relative">
       <ion-img [src]="picture"></ion-img>
-      <ion-text color="light" class="absolute-text-2">
-        <p>TAP AND HOLD TO EDIT THE INGREDIENTS</p>
-        <P>TAP INGREDIENT NOT IDENTIFIED TO ADD</P>
-      </ion-text>
     </ion-col>
   </ion-row>
 </ion-grid>
@@ -36,11 +32,11 @@
 
 
 <!-- Retake Picture - Starts -->
-<ion-fab horizontal="end" vertical="top" slot="fixed" *ngIf="picture !== '' && !isCameraOpen">
+<!-- <ion-fab horizontal="end" vertical="top" slot="fixed" *ngIf="picture !== '' && !isCameraOpen">
   <ion-fab-button color="dark" (click)="refresh()" size="small">
     <ion-icon name="trash"></ion-icon>
   </ion-fab-button>
-</ion-fab>
+</ion-fab> -->
 <!-- Retake Picture - End -->
 
 <!-- Take Picture Button - Starts -->

@@ -11,3 +11,53 @@ ion-card.card {
         font-weight: bold;
     }
 }
+
+.bold {
+    font-weight: bold;
+    color: black;
+}
+
+.text p, .font {
+    font-size: 16px;
+}
+
+hr {
+    border: 1px solid #ccc;
+}
+
+.popover-content.sc-ion-popover-md  { width: 88% !important;}
+
+.error-list {
+    ul {
+       margin: 0;
+       margin-top: -10px;
+       padding: 0;
+       width: 100%;
+       li {
+          list-style: none;
+          display: inline-block;
+          font-family: 'AvenirBook';
+          font-size: 14px;
+          text-transform: capitalize;
+          color: #f04141;
+          width: 100%;
+          &:first-child { margin-right: 0; }
+          &:last-child { margin-right: 0; }
+       }
+ 
+       li.active {
+          color: #020203;
+          font-weight: 600;
+       }
+    }
+ }
+
+ .img {
+    height: 200px;
+
+    img{
+        max-width: 100%;
+        max-height: 100%;
+        display: block; /* remove extra space below image */
+    }
+ }

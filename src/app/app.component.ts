@@ -37,7 +37,6 @@ export class AppComponent {
     this.geolocation
         .getCurrentPosition({ enableHighAccuracy: true})
         .then((resp) => {
-          console.log(resp.coords.latitude, resp.coords.longitude);
           this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
         })
         .catch((error) => {
