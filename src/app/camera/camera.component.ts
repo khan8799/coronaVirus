@@ -7,6 +7,7 @@ import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { File } from '@ionic-native/file/ngx';
 import { Storage } from '@ionic/storage';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
+import { FilePath } from '@ionic-native/file-path/ngx';
 
 @Component({
   selector: 'app-camera',
@@ -34,6 +35,7 @@ export class CameraComponent implements OnInit {
     private file: File,
     private storage: Storage,
     private webview: WebView,
+    private filePath: FilePath,
   ) { }
 
   ngOnInit() {
@@ -70,17 +72,16 @@ export class CameraComponent implements OnInit {
       (imageData) => {
         this.customizeCameraService.stopCamera().then(
           (res) => {
-            console.log(imageData);
-            this.picture = 'data:image/jpeg;base64,' + imageData;
-            this.storage.set('imagePath', {filePath: imageData, base64Image: this.picture});
-            // this.isCameraOpen = false;
+            this.isCameraOpen = false;
 
-            const currentName = imageData.substr(imageData.lastIndexOf('/') + 1);
-            const currentPath = imageData.substr(0, imageData.lastIndexOf('/') + 1);
+            this.filePath
+                .resolveNativePath('file://' + imageData[0])
+                .then(filePath => {
+                    const correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
+                    const currentName = filePath.substring(filePath.lastIndexOf('/') + 1);
+                    this.copyFileToLocalDir(correctPath, currentName, this.createFileName());
+                });
 
-            this.copyFileToLocalDir(currentPath, currentName, this.createFileName());
-
-            this.checkLocation();
           },
           (err) => console.log(err)
         );
@@ -100,15 +101,13 @@ export class CameraComponent implements OnInit {
     this.file
         .copyFile(currentPath, currentName, this.file.dataDirectory, newFileName)
         .then(
-          _ => this.storage.set('imagePath', {filePath: newFileName, picture: this.picture}),
+          res => {
+            this.storage.set('imagePath', res);
+            this.checkLocation();
+            console.log(res);
+          },
           error => console.log(error)
         );
-  }
-
-  pathForImage(img) {
-    if (img === null) return;
-    const converted = this.webview.convertFileSrc(img);
-    return converted;
   }
 
   stopCamera() {

@@ -9,6 +9,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { UserService } from 'src/app/services/user.service';
 import { CustomValidationMessages } from 'src/app/custom-validation-messages';
 import { File, FileEntry } from '@ionic-native/file/ngx';
+import { WebView } from '@ionic-native/ionic-webview/ngx';
 
 @Component({
   selector: 'app-user-detail',
@@ -56,6 +57,7 @@ export class UserDetailPage implements OnInit {
     private toastService: ToastService,
     private userService: UserService,
     private file: File,
+    private webview: WebView,
   ) { }
 
   ngOnInit() {
@@ -85,15 +87,11 @@ export class UserDetailPage implements OnInit {
 
   async getImage() {
     const image = await this.storage.get('imagePath');
+    console.log(image);
     if (!image) return;
 
-    console.log(image.filePath);
     // this.startUpload(image.filePath);
-    this.picture = image.base64Image;
-    this.imgBlob = this.image(image.base64Image);
-    console.log(this.imgBlob);
-    this.storage.remove('imagePath');
-    if (this.picture && this.lat && this.long) { this.scrollToItemFn(); }
+    this.imgBlob = this.startUpload(image);
   }
 
   initializeForm(): void {
@@ -192,9 +190,8 @@ export class UserDetailPage implements OnInit {
     formData.append('pid', this.infectedPersonId);
     formData.append('slot', form.time);
     formData.append('date', date.getFullYear() + '-' + month + '-' + day);
-    this.date = form.date;
-    this.slot = form.time;
-
+    this.storage.set('slot', form.time);
+    this.storage.set('date', form.date);
     this.userService
         .checkEntrySlot(formData)
         .subscribe(
@@ -216,7 +213,7 @@ export class UserDetailPage implements OnInit {
       return;
     }
 
-    if (!this.picture) {
+    if (!this.imgBlob) {
       await this.toastService.presentToast('Please click image');
       return;
     }
@@ -242,8 +239,7 @@ export class UserDetailPage implements OnInit {
     formData.append('lat', this.lat);
     formData.append('long', this.long);
     formData.append('loc_address', this.address);
-    formData.append('image', this.imgBlob, this.userData.id);
-    console.log(formData);
+    formData.append('image', this.imgBlob, this.fileName);
 
     this.userService
         .userForm(formData)
@@ -324,8 +320,6 @@ export class UserDetailPage implements OnInit {
   openCamera() {
     this.storage.set('userForm', this.userForm.value);
     this.storage.set('symptoms', this.selectedArray);
-    this.storage.set('slot', this.slot);
-    this.storage.set('date', this.date);
 
     const navigationExtras: NavigationExtras = {
       queryParams: { id: this.infectedPersonId }
@@ -336,7 +330,6 @@ export class UserDetailPage implements OnInit {
   scrollToItemFn() {
     setTimeout(() => {
       const el = document.getElementById('image');
-      console.log(el);
       if (el) {
         el.scroll();
         el.scrollIntoView({behavior: 'smooth'});
@@ -352,8 +345,14 @@ export class UserDetailPage implements OnInit {
   }
 
   startUpload(filePath) {
-      this.file
-        .resolveLocalFilesystemUrl(filePath)
+    this.storage.remove('imagePath');
+    this.storage.remove('date');
+    this.storage.remove('slot');
+    this.picture = this.webview.convertFileSrc(this.file.dataDirectory + filePath.name);
+
+    this.fileName = filePath.name;
+    this.file
+        .resolveLocalFilesystemUrl(filePath.nativeURL)
         .then(
           entry => {
             ( entry as FileEntry).file(file => this.readFile(file));
@@ -363,32 +362,14 @@ export class UserDetailPage implements OnInit {
   }
 
   readFile(file: any) {
-    console.log(file);
+    if (this.picture) { this.scrollToItemFn(); }
     const reader = new FileReader();
     reader.onloadend = () => {
       const formdata = new FormData();
       const imgBlob = new Blob([reader.result], { type: file.type });
-      this.storage.set('image', {
-        blob: imgBlob,
-        fileName: file.name,
-      });
+      this.imgBlob = imgBlob;
     };
     reader.readAsArrayBuffer(file);
-  }
-
-  image(base64Image) {
-    let byteString;
-    if (base64Image.split(',')[0].indexOf('base64') >= 0)
-      byteString = atob(base64Image.split(',')[1]);
-
-    const mimeString = base64Image.split(',')[0].split(':')[1].split(';')[0];
-
-    const ia = new Uint8Array(byteString.length);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-
-    return new Blob([ia], { type: mimeString });
   }
 
 }
