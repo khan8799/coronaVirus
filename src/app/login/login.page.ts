@@ -68,6 +68,7 @@ export class LoginPage implements OnInit {
     if (resp.errorCode === 1) {
       this.dismissLoading(resp.message);
     } else {
+      localStorage.setItem('accessToken', resp.data[0].accessToken);
       this.storage.set('userData', resp.data[0]);
 
       this.dismissLoading('');

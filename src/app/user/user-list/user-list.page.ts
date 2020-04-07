@@ -56,13 +56,13 @@ export class UserListPage implements OnInit {
   }
 
   async getUserList() {
-    const userLists = await this.storage.get('userList');
-    if (userLists) {
-      this.userList = userLists;
-      this.filterUserist = userLists;
-      console.log(this.userList[0]);
-      return;
-    }
+    // const userLists = await this.storage.get('userList');
+    // if (userLists) {
+    //   this.userList = userLists;
+    //   this.filterUserist = userLists;
+    //   console.log(this.userList[0]);
+    //   return;
+    // }
 
     await this.loadingService.presentLoading('Fetching monitoring list...');
     const formData = new FormData();
@@ -173,6 +173,7 @@ export class UserListPage implements OnInit {
 
   logout() {
     this.storage.clear();
+    localStorage.clear();
     this.navController.navigateBack(['/']);
   }
 

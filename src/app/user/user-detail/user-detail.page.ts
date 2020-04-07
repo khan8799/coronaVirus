@@ -248,6 +248,7 @@ export class UserDetailPage implements OnInit {
             if (resp.errorCode === 0) {
               this.dismissLoading('Data Submitted Successfully');
               setTimeout(() => {
+                this.storage.remove('userList');
                 this.navController.navigateRoot(['/user-list']);
               }, 200);
             } else this.dismissLoading(resp.message);

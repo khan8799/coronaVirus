@@ -14,8 +14,10 @@ import { environment } from 'src/environments/environment';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private AUTH_HEADER     = 'Authorization';
+  // private AUTH_HEADER  = 'accessToken';
   private token           = null;
   private API_URL         = environment.apiEndpointProxy;
+  // private API_URL         = environment.apiEndpointLive;
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     req = this.setUrl(req);
@@ -24,7 +26,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(req)
       .pipe(
-        retry(1),
+        // retry(1),
         catchError((error: HttpErrorResponse) => {
           let errorMessage;
           errorMessage = { message: error.message };
@@ -45,10 +47,10 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private addAuthenticationToken(request: HttpRequest<any>): HttpRequest<any> {
     this.token = localStorage.getItem('accessToken');
+    return request;
 
     // tslint:disable-next-line: curly
     if (this.token === null) return request;
-
-    return request.clone({headers: request.headers.set(this.AUTH_HEADER, 'Bearer ' + this.token)});
+    return request.clone({headers: request.headers.set(this.AUTH_HEADER, this.token)});
   }
 }

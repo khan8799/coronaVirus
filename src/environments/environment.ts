@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   apiEndpointProxy: 'https://bcims.in/api/',
+  apiEndpointLive: 'https://bcims.bihar.gov.in/api/',
 };
 
 /*

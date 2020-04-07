@@ -164,7 +164,10 @@
           <ion-row>
             <ion-col></ion-col>
             <ion-col>{{ person.ward }}</ion-col>
-            <ion-col>{{ person.quarantined }} (Last Entry: {{ person.datetime | date:'dd-MM-yyyy' }} {{ (person.datetime | date:'aa') === 'AM' ? 'Morning' : 'Evening'}})</ion-col>
+            <ion-col>
+              {{ person.quarantined === 'at_isolation' ? 'At Isolation Camp' : person.quarantined === 'at_home' ? 'At Home' : person.quarantined}} 
+              (Last Entry: {{ person.datetime | date:'dd-MM-yyyy' }} {{ (person.datetime | date:'aa') === 'AM' ? 'Morning' : 'Evening'}})
+            </ion-col>
             <ion-col>{{ person.status }}</ion-col>
           </ion-row>
         </ion-grid>
