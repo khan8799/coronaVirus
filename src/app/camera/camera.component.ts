@@ -39,9 +39,9 @@ export class CameraComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     localStorage.clear();
-    localStorage.setItem('token', token);
+    localStorage.setItem('accessToken', token);
     this.openCamera();
 
     this.activatedRoute.queryParams.subscribe(params => {

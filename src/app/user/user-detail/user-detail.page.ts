@@ -71,30 +71,9 @@ export class UserDetailPage implements OnInit {
     });
 
     this.getLocation();
-    this.getImage();
-
     this.getUserData();
     this.getMonitoredUser();
     this.userForm.valueChanges.subscribe(data => this.logValidationErrors());
-  }
-
-  async getLocation() {
-    const loc = await this.storage.get('location');
-    if (!loc) return;
-
-    this.lat      = loc.lat;
-    this.long     = loc.long;
-    this.address  = loc.address;
-    this.storage.remove('location');
-  }
-
-  async getImage() {
-    const image = await this.storage.get('imagePath');
-    console.log(image);
-    if (!image) return;
-
-    // this.startUpload(image.filePath);
-    this.imgBlob = this.startUpload(image);
   }
 
   initializeForm(): void {
@@ -105,7 +84,7 @@ export class UserDetailPage implements OnInit {
       officialDesignation: ['', [Validators.required]],
       officialPhone: ['', [Validators.required, CustomValidators.phoneValidator]],
       symptoms: [''],
-      quarantined: ['no', [Validators.required]],
+      quarantined: ['at_home', [Validators.required]],
       poster: ['yes'],
       remarks: ['', [Validators.required]],
     });
@@ -119,24 +98,14 @@ export class UserDetailPage implements OnInit {
     this.checkFormdata();
   }
 
-  logValidationErrors(group: FormGroup = this.userForm): void {
-    Object.keys(group.controls).forEach((key: string) => {
-      const abstractControl: AbstractControl = group.get(key);
+  async getLocation() {
+    const loc = await this.storage.get('location');
+    if (!loc) return;
 
-      this.formErrors[key] = '';
-      if (
-        abstractControl &&
-        !abstractControl.valid &&
-        (abstractControl.touched || abstractControl.dirty)
-      ) {
-        const msg = this.validationMessages[key];
-
-        for (const errorKey in abstractControl.errors) {
-          if (errorKey) this.formErrors[key] = msg[errorKey] + ' ';
-        }
-      }
-
-    });
+    this.lat      = loc.lat;
+    this.long     = loc.long;
+    this.address  = loc.address;
+    this.storage.remove('location');
   }
 
   async checkFormdata() {
@@ -167,14 +136,27 @@ export class UserDetailPage implements OnInit {
           poster: userFormdataExists.poster,
           remarks: userFormdataExists.remarks,
         });
+      }, 100);
+    }
 
+    if (this.date) {
+      setTimeout(() => {
         this.userDataExistForm.patchValue({
           date: this.date,
           slot: this.slot
         });
       }, 100);
     }
+    this.getImage();
 
+  }
+
+  async getImage() {
+    const image = await this.storage.get('imagePath');
+    console.log(image);
+    if (!image) return;
+
+    this.imgBlob = this.startUpload(image);
   }
 
   async getUserData() { this.userData = await this.storage.get('userData'); }
@@ -190,9 +172,12 @@ export class UserDetailPage implements OnInit {
   }
 
   async checkUserdataExistForm() {
-    await this.loadingService.presentLoading('Checking data exist...');
     const form  = this.userDataExistForm.value;
-
+    if (form.date === '' || form.time === '') {
+      await this.toastService.presentToast('Form is not valid. Please fill all required fields.');
+      return;
+    }
+    await this.loadingService.presentLoading('Checking data exist...');
     const year  = new Date(form.date).getUTCFullYear();
     let month   = new Date(form.date).getUTCMonth() + 1;
     let day     = new Date(form.date).getUTCDate();
@@ -200,6 +185,7 @@ export class UserDetailPage implements OnInit {
     month = month > 9 ? month : parseInt('0' + month, 10);
     day   = day > 9 ? day : parseInt('0' + day, 10);
 
+    this.showExistMessage = false;
     const formData = new FormData();
     formData.append('user_id', this.userData.id);
     formData.append('pid', this.infectedPersonId);
@@ -221,6 +207,7 @@ export class UserDetailPage implements OnInit {
             } else {
               this.showForm = false;
               this.showExistMessage = true;
+              this.scrollToItemFn('existMessage');
             }
             this.dismissLoading('');
           },
@@ -233,7 +220,7 @@ export class UserDetailPage implements OnInit {
     this.logValidationErrors();
 
     if (!this.userForm.valid) {
-      await this.toastService.presentToast('Form is not valid');
+      await this.toastService.presentToast('Form is not valid. Please fill all required fields.');
       return;
     }
 
@@ -294,42 +281,42 @@ export class UserDetailPage implements OnInit {
     this.symptomsList = [
       {
         label: 'सूखी खांसी - Dry Cough',
-        value: 'cough',
+        value: 'Dry_Cough',
         isChecked: false
       },
       {
         label: 'साँस लेने में तकलीफ़ - Difficulty Breathing',
-        value: 'breathing',
+        value: 'Difficulty_Breathing',
         isChecked: false
       },
       {
         label: 'बुख़ार - Fever',
-        value: 'fever',
+        value: 'Fever',
         isChecked: false
       },
       {
         label: 'सर्दी - Cold',
-        value: 'cold',
+        value: 'Cold',
         isChecked: false
       },
       {
         label: 'दस्त - Diarrhoea',
-        value: 'diarrhoea',
+        value: 'Diarrhoea',
         isChecked: false
       },
       {
         label: 'गले में ख़राश - Soar Throat',
-        value: 'soarThroat',
+        value: 'Soar_Throat',
         isChecked: false
       },
       {
         label: 'सिरदर्द - Headache',
-        value: 'headache',
+        value: 'Headache',
         isChecked: false
       },
       {
         label: 'शरीर में मरोड़ - Body Ach',
-        value: 'bodyAche',
+        value: 'Body_Ache',
         isChecked: false
       },
       {
@@ -350,9 +337,9 @@ export class UserDetailPage implements OnInit {
     this.navController.navigateRoot(['/camera'], navigationExtras);
   }
 
-  scrollToItemFn() {
+  scrollToItemFn(id) {
     setTimeout(() => {
-      const el = document.getElementById('image');
+      const el = document.getElementById(id);
       if (el) {
         el.scroll();
         el.scrollIntoView({behavior: 'smooth'});
@@ -385,7 +372,7 @@ export class UserDetailPage implements OnInit {
   }
 
   readFile(file: any) {
-    if (this.picture) { this.scrollToItemFn(); }
+    if (this.picture) { this.scrollToItemFn('image'); }
     const reader = new FileReader();
     reader.onloadend = () => {
       const formdata = new FormData();
@@ -393,6 +380,26 @@ export class UserDetailPage implements OnInit {
       this.imgBlob = imgBlob;
     };
     reader.readAsArrayBuffer(file);
+  }
+
+  logValidationErrors(group: FormGroup = this.userForm): void {
+    Object.keys(group.controls).forEach((key: string) => {
+      const abstractControl: AbstractControl = group.get(key);
+
+      this.formErrors[key] = '';
+      if (
+        abstractControl &&
+        !abstractControl.valid &&
+        (abstractControl.touched || abstractControl.dirty)
+      ) {
+        const msg = this.validationMessages[key];
+
+        for (const errorKey in abstractControl.errors) {
+          if (errorKey) this.formErrors[key] = msg[errorKey] + ' ';
+        }
+      }
+
+    });
   }
 
 }

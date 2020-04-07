@@ -328,10 +328,10 @@
               <ion-col>
                 <ion-select
                   interface="popover"
+                  color="dark"
                   class="ion-no-padding ion-padding-horizontal"
                   name="quarantined"
                   formControlName="quarantined">
-                    <ion-select-option value="no">No</ion-select-option>
                     <ion-select-option value="at_home">घर में - At Home</ion-select-option>
                     <ion-select-option value="at_isolation">क्वारंटाइन कैम्प में - At Quarantine Camp</ion-select-option>
                 </ion-select>
@@ -404,7 +404,7 @@
           </ion-grid>
           <!-- Display Captured Picture - End -->
 
-
+          <p><ion-text color="success">व्यक्ति के घर की फोटो खींचें और सबमिट करें</ion-text></p>
           <ion-button
             color="danger"
             (click)="openCamera()">Take a Photo</ion-button>
@@ -419,11 +419,11 @@
       </ion-card>
     </form>
 
-    <div *ngIf="showExistMessage" class="ion-margin ion-text-center">
+    <div id="existMessage" *ngIf="showExistMessage" class="ion-margin ion-text-center">
       <br>
       <h1 class="ion-margin-vertical">
         <ion-text color="danger">
-          Record already exists for Unique ID {{ infectedPersonId }} of {{ userDataExistForm.value.date | date }} - {{ userDataExistForm.value.time }}
+          Record already exists for Unique ID {{ infectedPersonId }} of {{ date | date }} - <span>{{ slot }}</span>
         </ion-text>
       </h1>
       <br><br>

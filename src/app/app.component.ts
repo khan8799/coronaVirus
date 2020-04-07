@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Platform } from '@ionic/angular';
+import { Platform, NavController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Geolocation} from '@ionic-native/geolocation/ngx';
@@ -20,6 +20,7 @@ export class AppComponent {
     private statusBar: StatusBar,
     public geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,
+    private navController: NavController,
   ) {
     this.initializeApp();
   }
@@ -37,6 +38,9 @@ export class AppComponent {
     this.geolocation
         .getCurrentPosition({ enableHighAccuracy: true})
         .then((resp) => {
+          const token = localStorage.getItem('accessToken');
+          if (token === null) this.navController.navigateRoot(['/']);
+          else this.navController.navigateRoot(['/user-list']);
           this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
         })
         .catch((error) => {
@@ -57,21 +61,16 @@ export class AppComponent {
     this.nativeGeocoder
         .reverseGeocode(lattitude, longitude, options)
         .then((result: NativeGeocoderResult[]) => {
-          console.log(result);
-          // alert(JSON.stringify(result))
           this.address = '';
           const responseAddress = [];
           for (const [key, value] of Object.entries(result[0])) {
-            if (value.length > 0) {
-              responseAddress.push(value);
-            }
+            if (value.length > 0) responseAddress.push(value);
           }
           responseAddress.reverse();
           for (const value of responseAddress) {
             this.address += value + ', ';
           }
           this.address = this.address.slice(0, -2);
-          console.log(this.address);
 
         })
         .catch((error: any) =>  this.address = 'Address Not Available!');

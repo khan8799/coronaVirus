@@ -165,8 +165,8 @@
             <ion-col></ion-col>
             <ion-col>{{ person.ward }}</ion-col>
             <ion-col>
-              {{ person.quarantined === 'at_isolation' ? 'At Isolation Camp' : person.quarantined === 'at_home' ? 'At Home' : person.quarantined}} 
-              (Last Entry: {{ person.datetime | date:'dd-MM-yyyy' }} {{ (person.datetime | date:'aa') === 'AM' ? 'Morning' : 'Evening'}})
+              {{ person.current_quarantined_status === 'at_isolation' ? 'At Isolation Camp' : person.current_quarantined_status === 'at_home' ? 'At Home' : person.current_quarantined_status}} 
+              (Last Entry: {{ person.current_date }} {{ person.current_slot  }})
             </ion-col>
             <ion-col>{{ person.status }}</ion-col>
           </ion-row>
@@ -174,5 +174,20 @@
 
       </ion-card-content>
     </ion-card>
+
+    <!-- <ng-template #noData>
+      <div class="ion-margin ion-text-center">
+        <br>
+        <h1 class="ion-margin-vertical">
+          <ion-text color="danger">
+           No Data Found
+          </ion-text>
+        </h1>
+        <br><br>
+      </div>
+    </ng-template> -->
+    
+    
+
   </ion-grid>
 </ion-content>

@@ -24,15 +24,10 @@ export class LoginPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    localStorage.clear();
-    this.initializeForm();
-    this.getUserData();
-  }
-
-  async getUserData() {
-    const userData = await this.storage.get('userData');
+    this.storage.clear();
     const accessToken = localStorage.getItem('accessToken');
-    if (accessToken) { this.navController.navigateRoot(['/user-list']); }
+    if (accessToken !== null) { this.navController.navigateRoot(['/user-list']); }
+    this.initializeForm();
   }
 
   initializeForm(): void {
