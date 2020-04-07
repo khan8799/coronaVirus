@@ -318,6 +318,12 @@
               </ng-container>
             </ng-container>
 
+
+            <ion-row>
+              <ion-list-header class="ion-no-padding ion-padding-horizontal">
+                <ion-label class="font">क्या घर / क्वारंटाइन कैम्प में स्वयं को सीमित रखें है (Quarantined at home or at camp?)</ion-label>
+              </ion-list-header>
+            </ion-row>
             <ion-row>
               <ion-col>
                 <ion-select
@@ -327,11 +333,12 @@
                   formControlName="quarantined">
                     <ion-select-option value="no">No</ion-select-option>
                     <ion-select-option value="at_home">घर में - At Home</ion-select-option>
-                    <ion-select-option value="at_isolation"> Isolation केंद्र में - At Isolation center</ion-select-option>
+                    <ion-select-option value="at_isolation">क्वारंटाइन कैम्प में - At Quarantine Camp</ion-select-option>
                 </ion-select>
               </ion-col>
             </ion-row>
             <br>
+
             <ion-radio-group value="yes" formControlName="poster">
               <ion-row>
                 <ion-list-header class="ion-no-padding ion-padding-horizontal">

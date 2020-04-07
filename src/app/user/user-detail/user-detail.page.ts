@@ -160,7 +160,7 @@ export class UserDetailPage implements OnInit {
 
   availabilityChange(ev) {
     this.showSymptoms = true;
-    if (ev.detail.value === '0') { this.showSymptoms = false; }
+    if (ev.detail.value === 'no') { this.showSymptoms = false; }
   }
 
   async checkUserdataExistForm() {
