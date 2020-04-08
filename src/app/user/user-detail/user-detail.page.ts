@@ -1,5 +1,5 @@
 import { CustomValidators } from './../../custom-validators';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { Storage } from '@ionic/storage';
@@ -16,7 +16,7 @@ import { WebView } from '@ionic-native/ionic-webview/ngx';
   templateUrl: './user-detail.page.html',
   styleUrls: ['./user-detail.page.scss'],
 })
-export class UserDetailPage implements OnInit {
+export class UserDetailPage implements OnInit, OnDestroy {
   public userForm: FormGroup;
   public userDataExistForm: FormGroup;
   public picture;
@@ -30,8 +30,8 @@ export class UserDetailPage implements OnInit {
   public showSymptoms = true;
   public showForm = false;
   public showExistMessage = false;
-  selectedArray: any = [];
-  symptomsList;
+  public selectedArray: any = [];
+  public symptomsList;
   public validationMessages = CustomValidationMessages.validationMessages;
   public formErrors = {
     officialName: '',
@@ -46,7 +46,7 @@ export class UserDetailPage implements OnInit {
   public slot;
   public date;
 
-  todaysDate = new Date().toISOString();
+  public todaysDate = new Date().toISOString();
 
   constructor(
     private fb: FormBuilder,
@@ -61,18 +61,7 @@ export class UserDetailPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    const accessToken = localStorage.getItem('accessToken');
-    console.log(accessToken);
-    if (accessToken === null) { this.navController.navigateRoot(['/']); }
     this.initializeForm();
-    this.activatedRoute.queryParams.subscribe(params => {
-      this.infectedPersonId = params.id;
-      if (!this.infectedPersonId) { this.navController.navigateRoot(['/user-list']); }
-    });
-
-    this.getLocation();
-    this.getUserData();
-    this.getMonitoredUser();
     this.userForm.valueChanges.subscribe(data => this.logValidationErrors());
   }
 
@@ -93,29 +82,45 @@ export class UserDetailPage implements OnInit {
       date: [''],
       time: [''],
     });
-
-    this.symptomsArray();
-    this.checkFormdata();
   }
 
-  async getLocation() {
-    const loc = await this.storage.get('location');
-    if (!loc) return;
+  ionViewWillEnter() {
+    this.symptomsArray();
 
-    this.lat      = loc.lat;
-    this.long     = loc.long;
-    this.address  = loc.address;
-    this.storage.remove('location');
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (Object.entries(params).length < 1) return this.navController.navigateRoot(['/user-list']);
+
+      this.infectedPersonId = params.id;
+
+      this.getAsyncData();
+      this.checkFormdata();
+    });
+  }
+
+  async getAsyncData() {
+    this.userData = await this.storage.get('userData');
+
+    const loc = await this.storage.get('location');
+    if (loc) {
+      this.lat      = loc.lat;
+      this.long     = loc.long;
+      this.address  = loc.address;
+    }
+
+    const userLists = await this.storage.get('userList');
+    this.monitoredUserData = userLists.filter(list => list.id === this.infectedPersonId)[0];
+
+    const image = await this.storage.get('imagePath');
+    if (image) this.imgBlob = this.startUpload(image);
   }
 
   async checkFormdata() {
-    const userFormdataExists = await this.storage.get('userForm');
-    const symptomsExist = await this.storage.get('symptoms');
-    this.slot = await this.storage.get('slot');
-    this.date = await this.storage.get('date');
+    const userFormdataExists  = await this.storage.get('userForm');
+    const symptomsExist       = await this.storage.get('symptoms');
+    this.slot                 = await this.storage.get('slot');
+    this.date                 = await this.storage.get('date');
 
     if (symptomsExist) {
-      this.showForm = true;
       this.selectedArray = symptomsExist;
       this.symptomsList = this.symptomsList.map(symptoms => {
         const newSymptoms = symptoms;
@@ -125,6 +130,7 @@ export class UserDetailPage implements OnInit {
     }
 
     if (userFormdataExists) {
+      this.showForm = true;
       setTimeout(() => {
         this.userForm.patchValue({
           isAvailable: userFormdataExists.isAvailable,
@@ -143,32 +149,10 @@ export class UserDetailPage implements OnInit {
       setTimeout(() => {
         this.userDataExistForm.patchValue({
           date: this.date,
-          slot: this.slot
+          time: this.slot
         });
       }, 100);
     }
-    this.getImage();
-
-  }
-
-  async getImage() {
-    const image = await this.storage.get('imagePath');
-    console.log(image);
-    if (!image) return;
-
-    this.imgBlob = this.startUpload(image);
-  }
-
-  async getUserData() { this.userData = await this.storage.get('userData'); }
-
-  async getMonitoredUser() {
-    const userLists = await this.storage.get('userList');
-    this.monitoredUserData = userLists.filter(list => list.id === this.infectedPersonId)[0];
-  }
-
-  availabilityChange(ev) {
-    this.showSymptoms = true;
-    if (ev.detail.value === 'no') { this.showSymptoms = false; }
   }
 
   async checkUserdataExistForm() {
@@ -177,7 +161,9 @@ export class UserDetailPage implements OnInit {
       await this.toastService.presentToast('Form is not valid. Please fill all required fields.');
       return;
     }
+
     await this.loadingService.presentLoading('Checking data exist...');
+
     const year  = new Date(form.date).getUTCFullYear();
     let month   = new Date(form.date).getUTCMonth() + 1;
     let day     = new Date(form.date).getUTCDate();
@@ -186,14 +172,13 @@ export class UserDetailPage implements OnInit {
     day   = day > 9 ? day : parseInt('0' + day, 10);
 
     this.showExistMessage = false;
+
     const formData = new FormData();
     formData.append('user_id', this.userData.id);
     formData.append('pid', this.infectedPersonId);
     formData.append('slot', form.time);
     formData.append('date', year + '-' + month + '-' + day);
 
-    this.storage.set('slot', form.time);
-    this.storage.set('date', form.date);
     this.date = form.date;
     this.slot = form.time;
 
@@ -255,6 +240,8 @@ export class UserDetailPage implements OnInit {
         .subscribe(
           (resp) => {
             if (resp.errorCode === 0) {
+              this.storage.remove('date');
+              this.storage.remove('slot');
               this.dismissLoading('Data Submitted Successfully');
               setTimeout(() => {
                 this.storage.remove('userList');
@@ -266,6 +253,39 @@ export class UserDetailPage implements OnInit {
         );
   }
 
+  openCamera() {
+    this.storage.set('userForm', this.userForm.value);
+    this.storage.set('symptoms', this.selectedArray);
+    this.storage.set('slot', this.slot);
+    this.storage.set('date', this.date);
+
+    const navigationExtras: NavigationExtras = {
+      queryParams: { id: this.infectedPersonId }
+    };
+    this.navController.navigateRoot(['/camera'], navigationExtras);
+  }
+
+  startUpload(filePath) {
+    this.showForm = true;
+    this.picture = this.webview.convertFileSrc(this.file.dataDirectory + filePath.name);
+
+    this.fileName = filePath.name;
+    this.file
+        .resolveLocalFilesystemUrl(filePath.nativeURL)
+        .then(entry => ( entry as FileEntry).file(file => this.readFile(file)))
+        .catch(err => console.log(err));
+  }
+
+  readFile(file: any) {
+    if (this.picture) this.scrollToItemFn('image');
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      this.imgBlob = new Blob([reader.result], { type: file.type });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
   selectMember(data) {
     setTimeout(() => {
       if (data.target.checked === true) {
@@ -275,6 +295,46 @@ export class UserDetailPage implements OnInit {
         this.selectedArray.splice(index, 1);
       }
     }, 500);
+  }
+
+  availabilityChange(ev) {
+    this.showSymptoms = true;
+    if (ev.detail.value === 'no') this.showSymptoms = false;
+  }
+
+  logValidationErrors(group: FormGroup = this.userForm): void {
+    Object.keys(group.controls).forEach((key: string) => {
+      const abstractControl: AbstractControl = group.get(key);
+
+      this.formErrors[key] = '';
+      if (
+        abstractControl &&
+        !abstractControl.valid &&
+        (abstractControl.touched || abstractControl.dirty)
+      ) {
+        const msg = this.validationMessages[key];
+
+        for (const errorKey in abstractControl.errors) {
+          if (errorKey) this.formErrors[key] = msg[errorKey] + ' ';
+        }
+      }
+
+    });
+  }
+
+  scrollToItemFn(id) {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scroll();
+        el.scrollIntoView({behavior: 'smooth'});
+      }
+    }, 500);
+  }
+
+  async dismissLoading(err: string) {
+    await this.loadingService.dismissLoading();
+    if (err) await this.toastService.presentToast(err);
   }
 
   symptomsArray() {
@@ -327,79 +387,9 @@ export class UserDetailPage implements OnInit {
     ];
   }
 
-  openCamera() {
-    this.storage.set('userForm', this.userForm.value);
-    this.storage.set('symptoms', this.selectedArray);
-
-    const navigationExtras: NavigationExtras = {
-      queryParams: { id: this.infectedPersonId }
-    };
-    this.navController.navigateRoot(['/camera'], navigationExtras);
-  }
-
-  scrollToItemFn(id) {
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scroll();
-        el.scrollIntoView({behavior: 'smooth'});
-      }
-    }, 500);
-  }
-
-  async dismissLoading(err: string) {
-    await this.loadingService.dismissLoading();
-    if (err) {
-      await this.toastService.presentToast(err);
-    }
-  }
-
-  startUpload(filePath) {
+  ngOnDestroy() {
+    this.storage.remove('location');
     this.storage.remove('imagePath');
-    this.storage.remove('date');
-    this.storage.remove('slot');
-    this.picture = this.webview.convertFileSrc(this.file.dataDirectory + filePath.name);
-
-    this.fileName = filePath.name;
-    this.file
-        .resolveLocalFilesystemUrl(filePath.nativeURL)
-        .then(
-          entry => {
-            ( entry as FileEntry).file(file => this.readFile(file));
-          }
-        )
-        .catch(err => console.log(err));
-  }
-
-  readFile(file: any) {
-    if (this.picture) { this.scrollToItemFn('image'); }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const formdata = new FormData();
-      const imgBlob = new Blob([reader.result], { type: file.type });
-      this.imgBlob = imgBlob;
-    };
-    reader.readAsArrayBuffer(file);
-  }
-
-  logValidationErrors(group: FormGroup = this.userForm): void {
-    Object.keys(group.controls).forEach((key: string) => {
-      const abstractControl: AbstractControl = group.get(key);
-
-      this.formErrors[key] = '';
-      if (
-        abstractControl &&
-        !abstractControl.valid &&
-        (abstractControl.touched || abstractControl.dirty)
-      ) {
-        const msg = this.validationMessages[key];
-
-        for (const errorKey in abstractControl.errors) {
-          if (errorKey) this.formErrors[key] = msg[errorKey] + ' ';
-        }
-      }
-
-    });
   }
 
 }

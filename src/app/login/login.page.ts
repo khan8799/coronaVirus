@@ -24,9 +24,6 @@ export class LoginPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.storage.clear();
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken !== null) { this.navController.navigateRoot(['/user-list']); }
     this.initializeForm();
   }
 
@@ -50,8 +47,6 @@ export class LoginPage implements OnInit {
     formData.append('user_id', this.userLoginForm.value.user_id);
     formData.append('password', this.userLoginForm.value.password);
 
-    console.log(formData);
-
     this.userService
         .login(formData)
         .subscribe(
@@ -68,15 +63,13 @@ export class LoginPage implements OnInit {
       this.storage.set('userData', resp.data[0]);
 
       this.dismissLoading('');
-      this.navController.navigateRoot(['/user-list']);
+      this.navController.navigateForward(['/user-list']);
     }
   }
 
   async dismissLoading(err: string) {
     await this.loadingService.dismissLoading();
-    if (err) {
-      await this.toastService.presentToast(err);
-    }
+    if (err) await this.toastService.presentToast(err);
   }
 
 
