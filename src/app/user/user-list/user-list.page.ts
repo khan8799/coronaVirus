@@ -69,8 +69,10 @@ export class UserListPage implements OnInit, OnDestroy {
   async getUserData() {
     this.userData = await this.storage.get('userData');
 
-    this.getUserList();
-    this.getBlockList();
+    setTimeout(() => {
+      this.getUserList();
+      this.getBlockList();
+    }, 100);
   }
 
   async getUserList() {
