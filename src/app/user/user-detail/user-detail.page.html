@@ -92,7 +92,7 @@
     <form *ngIf="showForm" [formGroup]="userForm" (ngSubmit)="submitForm()">
       <ion-card class="ion-no-margin ion-margin-vertical">
         <ion-card-header>
-          <ion-card-title class="bold">Selected District: Nawada</ion-card-title>
+          <ion-card-title class="bold">Selected District: {{ userData?.district }}</ion-card-title>
         </ion-card-header>
       
         <ion-card-content>
