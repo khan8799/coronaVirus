@@ -197,6 +197,8 @@ export class UserListPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.storage.remove('userForm');
     this.storage.remove('symptoms');
+    this.storage.remove('date');
+    this.storage.remove('slots');
   }
 
 }

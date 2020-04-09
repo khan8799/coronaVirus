@@ -124,6 +124,10 @@
 
 
     <ion-card class="ion-no-margin ion-margin-vertical ion-no-padding" *ngIf="filterUserist && filterUserist.length > 0;else noData">
+      <ion-card-header class="ion-no-padding">
+        <ion-card-title>Total Record: {{ filterUserist.length }} </ion-card-title>
+      </ion-card-header>
+
       <ion-card-content class="ion-no-padding">
 
         <ion-virtual-scroll [items]="filterUserist" approxItemHeight="320px">
