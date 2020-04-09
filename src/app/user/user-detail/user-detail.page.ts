@@ -1,6 +1,6 @@
 import { CustomValidators } from './../../custom-validators';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { NavController, Platform } from '@ionic/angular';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { Storage } from '@ionic/storage';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
@@ -10,6 +10,8 @@ import { UserService } from 'src/app/services/user.service';
 import { CustomValidationMessages } from 'src/app/custom-validation-messages';
 import { File, FileEntry } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
+import { Subscription } from 'rxjs';
+import { BackButtonEmitter } from '@ionic/angular/providers/platform';
 
 @Component({
   selector: 'app-user-detail',
@@ -47,6 +49,7 @@ export class UserDetailPage implements OnInit, OnDestroy {
   public date;
 
   public todaysDate = new Date().toISOString();
+  public backButtonSubscription: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -58,6 +61,7 @@ export class UserDetailPage implements OnInit, OnDestroy {
     private userService: UserService,
     private file: File,
     private webview: WebView,
+    private platform: Platform,
   ) { }
 
   ngOnInit() {
@@ -85,6 +89,8 @@ export class UserDetailPage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
+    const backBtn: BackButtonEmitter = this.platform.backButton;
+    this.backButtonSubscription = backBtn.subscribe(clicked => this.navController.navigateRoot(['/user-list']));
     this.symptomsArray();
 
     this.activatedRoute.queryParams.subscribe(params => {
@@ -129,6 +135,7 @@ export class UserDetailPage implements OnInit, OnDestroy {
       });
     }
 
+    console.log(userFormdataExists);
     if (userFormdataExists) {
       this.showForm = true;
       setTimeout(() => {
@@ -235,6 +242,7 @@ export class UserDetailPage implements OnInit, OnDestroy {
     formData.append('loc_address', this.address);
     formData.append('image', this.imgBlob, this.fileName);
 
+    console.log(formData.forEach(val => console.log(val)));
     this.userService
         .userForm(formData)
         .subscribe(
@@ -266,6 +274,7 @@ export class UserDetailPage implements OnInit, OnDestroy {
   }
 
   startUpload(filePath) {
+    console.log(filePath);
     this.showForm = true;
     this.picture = this.webview.convertFileSrc(this.file.dataDirectory + filePath.name);
 
@@ -388,6 +397,7 @@ export class UserDetailPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.backButtonSubscription.unsubscribe();
     this.storage.remove('location');
     this.storage.remove('imagePath');
   }

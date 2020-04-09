@@ -9,6 +9,7 @@ export class AlertService {
   constructor(public alertController: AlertController) {}
 
   async presentAlertConfirm(data) {
+    localStorage.setItem('exitAlert', 'on');
     const alert = await this.alertController.create({
       header: data.heading,
       message: data.message,
@@ -18,14 +19,14 @@ export class AlertService {
           role: 'cancel',
           cssClass: 'alert-medium',
           handler: (blah) => {
-            console.log('Confirm Cancel: blah');
+            localStorage.setItem('exitAlert', 'off');
           }
         },
         {
           text: data.okBtnText,
           cssClass: 'alert-danger',
           handler: () => {
-            console.log('Confirm Okay');
+            localStorage.setItem('exitAlert', 'off');
             // tslint:disable-next-line: no-string-literal
             navigator['app'].exitApp();
           }
