@@ -8,6 +8,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { UserService } from 'src/app/services/user.service';
 import { Storage } from '@ionic/storage';
 import { BackButtonEmitter } from '@ionic/angular/providers/platform';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
@@ -21,6 +22,7 @@ export class UserListPage implements OnInit, OnDestroy {
   public filterUserist;
   public blockLists$;
   public panchayatLists$;
+  public backButtonSubscription: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -50,20 +52,28 @@ export class UserListPage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
+    this.storage.remove('userForm');
+    this.storage.remove('symptoms');
+    this.storage.remove('date');
+    this.storage.remove('slot');
+    this.storage.remove('location');
+    this.storage.remove('imagePath');
+    localStorage.setItem('exitAlert', 'off');
     this.getUserData();
     const backBtn: BackButtonEmitter = this.platform.backButton;
-    backBtn.subscribe(clicked => this.askExitApp());
+    this.backButtonSubscription = backBtn.subscribe(clicked => this.askExitApp());
   }
 
   askExitApp() {
-    console.log('exit app');
-    const alertData = {
-      heading: 'Exit App',
-      message: 'Do you want to exit?',
-      cancelBtnText: 'No, thanks',
-      okBtnText: 'Yes, please'
-    };
-    this.alertService.presentAlertConfirm(alertData);
+    if (localStorage.getItem('exitAlert') !== 'on') {
+      const alertData = {
+        heading: 'Exit App',
+        message: 'Do you really want to exit?',
+        cancelBtnText: 'No, stay',
+        okBtnText: 'Yes, please'
+      };
+      this.alertService.presentAlertConfirm(alertData);
+    }
   }
 
   async getUserData() {
@@ -180,13 +190,13 @@ export class UserListPage implements OnInit, OnDestroy {
     const navigationExtras: NavigationExtras = {
       queryParams: { id }
     };
-    this.navController.navigateForward(['/user-detail'], navigationExtras);
+    this.navController.navigateRoot(['/user-detail'], navigationExtras);
   }
 
   logout() {
     this.storage.clear();
     localStorage.clear();
-    this.navController.navigateBack(['/login']);
+    this.navController.navigateRoot(['/login']);
   }
 
   async dismissLoading(err: string) {
@@ -195,10 +205,7 @@ export class UserListPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.storage.remove('userForm');
-    this.storage.remove('symptoms');
-    this.storage.remove('date');
-    this.storage.remove('slots');
+    this.backButtonSubscription.unsubscribe();
   }
 
 }

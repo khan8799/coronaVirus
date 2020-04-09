@@ -16,8 +16,8 @@ export class AuthInterceptor implements HttpInterceptor {
   private AUTH_HEADER     = 'Authorization';
   // private AUTH_HEADER  = 'accessToken';
   private token           = null;
-  private API_URL         = environment.apiEndpointProxy;
-  // private API_URL         = environment.apiEndpointLive;
+  // private API_URL         = environment.apiEndpointProxy;
+  private API_URL         = environment.apiEndpointLive;
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     req = this.setUrl(req);
