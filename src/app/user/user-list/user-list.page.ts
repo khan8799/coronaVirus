@@ -1,24 +1,28 @@
-import { NavController } from '@ionic/angular';
-import { Component, OnInit } from '@angular/core';
+import { AlertService } from './../../services/alert.service';
+import { NavController, Platform } from '@ionic/angular';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavigationExtras } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { LoadingService } from 'src/app/services/loading.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UserService } from 'src/app/services/user.service';
 import { Storage } from '@ionic/storage';
+import { BackButtonEmitter } from '@ionic/angular/providers/platform';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.page.html',
   styleUrls: ['./user-list.page.scss'],
 })
-export class UserListPage implements OnInit {
+export class UserListPage implements OnInit, OnDestroy {
   public userSearchForm: FormGroup;
   public userData;
   public userList;
   public filterUserist;
   public blockLists$;
   public panchayatLists$;
+  public backButtonSubscription: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -27,14 +31,14 @@ export class UserListPage implements OnInit {
     private loadingService: LoadingService,
     private toastService: ToastService,
     private userService: UserService,
+    private platform: Platform,
+    private alertService: AlertService,
   ) { }
 
   ngOnInit() {
-    this.initializeForm();
-    this.getUserData();
+    if (localStorage.getItem('accessToken') === null) return this.navController.navigateRoot(['/login']);
 
-    this.storage.remove('userForm');
-    this.storage.remove('symptoms');
+    this.initializeForm();
   }
 
   initializeForm(): void {
@@ -47,26 +51,44 @@ export class UserListPage implements OnInit {
     });
   }
 
+  ionViewWillEnter() {
+    this.storage.remove('userForm');
+    this.storage.remove('symptoms');
+    this.storage.remove('date');
+    this.storage.remove('slot');
+    this.storage.remove('location');
+    this.storage.remove('imagePath');
+    localStorage.setItem('exitAlert', 'off');
+    this.getUserData();
+    const backBtn: BackButtonEmitter = this.platform.backButton;
+    this.backButtonSubscription = backBtn.subscribe(clicked => this.askExitApp());
+  }
+
+  askExitApp() {
+    if (localStorage.getItem('exitAlert') !== 'on') {
+      const alertData = {
+        heading: 'Exit App',
+        message: 'Do you really want to exit?',
+        cancelBtnText: 'No, stay',
+        okBtnText: 'Yes, please'
+      };
+      this.alertService.presentAlertConfirm(alertData);
+    }
+  }
+
   async getUserData() {
     this.userData = await this.storage.get('userData');
-    if (!this.userData) return this.navController.navigateRoot(['/']);
 
-    this.getUserList();
-    this.getBlockList();
+    setTimeout(() => {
+      this.getUserList();
+      this.getBlockList();
+    }, 100);
   }
 
   async getUserList() {
-    // const userLists = await this.storage.get('userList');
-    // if (userLists) {
-    //   this.userList = userLists;
-    //   this.filterUserist = userLists;
-    //   console.log(this.userList[0]);
-    //   return;
-    // }
-
     await this.loadingService.presentLoading('Fetching monitoring list...');
-    const formData = new FormData();
 
+    const formData = new FormData();
     formData.append('user_id', this.userData.id);
 
     this.userService
@@ -168,18 +190,22 @@ export class UserListPage implements OnInit {
     const navigationExtras: NavigationExtras = {
       queryParams: { id }
     };
-    this.navController.navigateForward(['/user-detail'], navigationExtras);
+    this.navController.navigateRoot(['/user-detail'], navigationExtras);
   }
 
   logout() {
     this.storage.clear();
     localStorage.clear();
-    this.navController.navigateBack(['/']);
+    this.navController.navigateRoot(['/login']);
   }
 
   async dismissLoading(err: string) {
     await this.loadingService.dismissLoading();
     if (err) await this.toastService.presentToast(err);
+  }
+
+  ngOnDestroy() {
+    this.backButtonSubscription.unsubscribe();
   }
 
 }

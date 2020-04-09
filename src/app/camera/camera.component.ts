@@ -6,7 +6,6 @@ import { Geolocation} from '@ionic-native/geolocation/ngx';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { File } from '@ionic-native/file/ngx';
 import { Storage } from '@ionic/storage';
-import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 
 @Component({
@@ -15,15 +14,16 @@ import { FilePath } from '@ionic-native/file-path/ngx';
   styleUrls: ['./camera.component.scss'],
 })
 export class CameraComponent implements OnInit {
-  picture       = '';
-  isCameraOpen  = false;
-  showIcons     = false;
+  public picture       = '';
+  public isCameraOpen  = false;
+  public showIcons     = false;
+
   // Flash Mode
-  flashModes: Promise<any>;
-  activeFlash = '';
-  address: any = '';
-  lat;
-  long;
+  public flashModes: Promise<any>;
+  public activeFlash = '';
+  public address: any = '';
+  public lat;
+  public long;
   public infectedPersonId;
 
   constructor(
@@ -34,19 +34,15 @@ export class CameraComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private file: File,
     private storage: Storage,
-    private webview: WebView,
     private filePath: FilePath,
   ) { }
 
   ngOnInit() {
-    const token = localStorage.getItem('token');
-    localStorage.clear();
-    localStorage.setItem('token', token);
-    this.openCamera();
-
     this.activatedRoute.queryParams.subscribe(params => {
+      if (Object.entries(params).length < 1) return this.navController.navigateRoot(['/user-list']);
+
       this.infectedPersonId = params.id;
-      if (!this.infectedPersonId) { this.navController.navigateRoot(['/user-list']); }
+      this.openCamera();
     });
   }
 
@@ -104,10 +100,44 @@ export class CameraComponent implements OnInit {
           res => {
             this.storage.set('imagePath', res);
             this.checkLocation();
-            console.log(res);
           },
           error => console.log(error)
         );
+  }
+
+  checkLocation() {
+    this.geolocation
+        .getCurrentPosition({ enableHighAccuracy: true})
+        .then((resp) => {
+          this.lat = resp.coords.latitude;
+          this.long = resp.coords.longitude;
+          this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
+        })
+        .catch((error) => console.log(error));
+  }
+
+  getAddressFromCoords(lattitude, longitude) {
+    const options: NativeGeocoderOptions = {
+      useLocale: true,
+      maxResults: 1
+    };
+
+    this.nativeGeocoder
+        .reverseGeocode(lattitude, longitude, options)
+        .then((result: NativeGeocoderResult[]) => {
+          this.address = '';
+          const responseAddress = [];
+          for (const [key, value] of Object.entries(result[0])) {
+            if (value.length > 0) responseAddress.push(value);
+          }
+          responseAddress.reverse();
+          for (const value of responseAddress) {
+            this.address += value + ', ';
+          }
+          this.address = this.address.slice(0, -2);
+          this.navigate();
+        })
+        .catch((error: any) =>  this.address = 'Address Not Available!');
   }
 
   stopCamera() {
@@ -126,53 +156,11 @@ export class CameraComponent implements OnInit {
     );
   }
 
-  setFlashMode(flashType: string) {
-    this.customizeCameraService.setFlashMode(flashType);
-  }
+  setFlashMode(flashType: string) { this.customizeCameraService.setFlashMode(flashType); }
 
   refresh() {
     this.picture = '';
     this.openCamera();
-  }
-
-  checkLocation() {
-    this.geolocation
-        .getCurrentPosition({ enableHighAccuracy: true})
-        .then((resp) => {
-          this.lat = resp.coords.latitude;
-          this.long = resp.coords.longitude;
-          this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
-        })
-        .catch((error) => console.log(error));
-  }
-
-  getAddressFromCoords(lattitude, longitude) {
-    console.log('getAddressFromCoords ' + lattitude + ' ' + longitude);
-    const options: NativeGeocoderOptions = {
-      useLocale: true,
-      maxResults: 1
-    };
-
-    this.nativeGeocoder
-        .reverseGeocode(lattitude, longitude, options)
-        .then((result: NativeGeocoderResult[]) => {
-          console.log(result);
-          this.address = '';
-          const responseAddress = [];
-          for (const [key, value] of Object.entries(result[0])) {
-            if (value.length > 0) {
-              responseAddress.push(value);
-            }
-          }
-          responseAddress.reverse();
-          for (const value of responseAddress) {
-            this.address += value + ', ';
-          }
-          this.address = this.address.slice(0, -2);
-          console.log(this.address);
-          this.navigate();
-        })
-        .catch((error: any) =>  this.address = 'Address Not Available!');
   }
 
   navigate() {

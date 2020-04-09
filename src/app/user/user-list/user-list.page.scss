@@ -27,3 +27,15 @@ ion-col {
 ion-grid.user-list {
     border-bottom: 1px solid #ccc;
 }
+
+ion-virtual-scroll {
+    ion-grid {
+        height: 320px;
+        --padding-start: 0;
+        --inner-padding-end: 0; 
+
+        ion-col {
+            padding: 5px 0px !important;
+        }
+    }
+}

@@ -1,9 +1,12 @@
 
-ion-toolbar {
-    ion-title, ion-buttons {
-        font-weight: bold;
+ion-header {
+    ion-toolbar {
+        ion-title, ion-buttons {
+            font-weight: bold;
+        }
     }
 }
+
 ion-card.card {
     box-shadow: none;
 

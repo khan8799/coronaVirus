@@ -1,18 +1,22 @@
 import { UserService } from './../services/user.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { LoadingService } from '../services/loading.service';
 import { ToastService } from '../services/toast.service';
-import { NavController } from '@ionic/angular';
+import { NavController, Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
+import { BackButtonEmitter } from '@ionic/angular/providers/platform';
+import { AlertService } from '../services/alert.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   public userLoginForm: FormGroup;
+  public backButtonSubscription: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -21,17 +25,12 @@ export class LoginPage implements OnInit {
     private toastService: ToastService,
     private userService: UserService,
     private storage: Storage,
+    private platform: Platform,
+    private alertService: AlertService,
   ) { }
 
   ngOnInit() {
-    localStorage.clear();
     this.initializeForm();
-    this.getUserData();
-  }
-
-  async getUserData() {
-    const userData = await this.storage.get('userData');
-    if (userData) { this.navController.navigateRoot(['/user-list']); }
   }
 
   initializeForm(): void {
@@ -39,6 +38,27 @@ export class LoginPage implements OnInit {
       user_id: ['', [Validators.required]],
       password: ['', [Validators.required]],
     });
+  }
+
+  ionViewWillEnter() {
+    console.log(localStorage.getItem('accessToken'), 'token');
+    if (localStorage.getItem('accessToken') !== null) this.navController.navigateRoot(['/user-list']);
+
+    localStorage.setItem('exitAlert', 'off');
+    const backBtn: BackButtonEmitter = this.platform.backButton;
+    this.backButtonSubscription = backBtn.subscribe(clicked => this.askExitApp());
+  }
+
+  askExitApp() {
+    if (localStorage.getItem('exitAlert') !== 'on') {
+      const alertData = {
+        heading: 'Exit App',
+        message: 'Do you really want to exit?',
+        cancelBtnText: 'No, stay',
+        okBtnText: 'Yes, please'
+      };
+      this.alertService.presentAlertConfirm(alertData);
+    }
   }
 
   async login() {
@@ -54,8 +74,6 @@ export class LoginPage implements OnInit {
     formData.append('user_id', this.userLoginForm.value.user_id);
     formData.append('password', this.userLoginForm.value.password);
 
-    console.log(formData);
-
     this.userService
         .login(formData)
         .subscribe(
@@ -69,18 +87,22 @@ export class LoginPage implements OnInit {
       this.dismissLoading(resp.message);
     } else {
       localStorage.setItem('accessToken', resp.data[0].accessToken);
-      this.storage.set('userData', resp.data[0]);
-
-      this.dismissLoading('');
-      this.navController.navigateRoot(['/user-list']);
+      this.storage
+          .set('userData', resp.data[0])
+          .then(succ => {
+            this.dismissLoading('');
+            this.navController.navigateRoot(['/user-list']);
+          });
     }
   }
 
   async dismissLoading(err: string) {
     await this.loadingService.dismissLoading();
-    if (err) {
-      await this.toastService.presentToast(err);
-    }
+    if (err) await this.toastService.presentToast(err);
+  }
+
+  ngOnDestroy() {
+    this.backButtonSubscription.unsubscribe();
   }
 
 
