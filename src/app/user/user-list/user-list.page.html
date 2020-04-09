@@ -123,59 +123,67 @@
     -->
 
 
-    <ion-card class="ion-no-margin ion-margin-vertical" *ngIf="filterUserist">
-      <ion-card-content>
+    <ion-card class="ion-no-margin ion-margin-vertical ion-no-padding" *ngIf="filterUserist && filterUserist.length > 0;else noData">
+      <ion-card-header class="ion-no-padding">
+        <ion-card-title>Total Record: {{ filterUserist.length }} </ion-card-title>
+      </ion-card-header>
 
-        <ion-grid class="ion-margin-vertical user-list" *ngFor="let person of filterUserist">
-          <ion-row class="heading">
-            <ion-col>U. ID</ion-col>
-            <ion-col>Name</ion-col>
-            <ion-col>Age</ion-col>
-            <ion-col>Contact</ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col>
-              <ion-text (click)="openForm(person.id)" color="primary">{{ person.id }}</ion-text>
-            </ion-col>
-            <ion-col>{{ person.name }}</ion-col>
-            <ion-col>{{ person.age }}</ion-col>
-            <ion-col>{{ person.contact }}</ion-col>
-          </ion-row>
+      <ion-card-content class="ion-no-padding">
 
-          <ion-row class="heading">
-            <ion-col></ion-col>
-            <ion-col>Other Contact</ion-col>
-            <ion-col>Panchayat</ion-col>
-            <ion-col>Vilage</ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col></ion-col>
-            <ion-col>{{ person.other_contact }}</ion-col>
-            <ion-col>{{ person.panchayat }}</ion-col>
-            <ion-col>{{ person.village }}</ion-col>
-          </ion-row>
+        <ion-virtual-scroll [items]="filterUserist" approxItemHeight="320px">
 
-          <ion-row class="heading">
-            <ion-col></ion-col>
-            <ion-col>Ward</ion-col>
-            <ion-col>Quarantine</ion-col>
-            <ion-col>Status</ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col></ion-col>
-            <ion-col>{{ person.ward }}</ion-col>
-            <ion-col>
-              {{ person.current_quarantined_status === 'at_isolation' ? 'At Isolation Camp' : person.current_quarantined_status === 'at_home' ? 'At Home' : person.current_quarantined_status}} 
-              (Last Entry: {{ person.current_date }} {{ person.current_slot  }})
-            </ion-col>
-            <ion-col>{{ person.status }}</ion-col>
-          </ion-row>
-        </ion-grid>
+          <ion-grid *virtualItem="let item" class="ion-margin-vertical user-list">
+            <ion-row class="ion-no-padding ion-no-margin heading">
+              <ion-col size="2">U. ID</ion-col>
+              <ion-col size="3">Name</ion-col>
+              <ion-col size="4">Age</ion-col>
+              <ion-col size="3">Contact</ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="2">
+                <ion-text (click)="openForm(item.id)" color="primary">{{ item.id }}</ion-text>
+              </ion-col>
+              <ion-col size="3">{{ item.name }}</ion-col>
+              <ion-col size="4">{{ item.age }}</ion-col>
+              <ion-col size="3">{{ item.contact }}</ion-col>
+            </ion-row>
+  
+            <ion-row class="heading">
+              <ion-col size="2"></ion-col>
+              <ion-col size="3">Other Contact</ion-col>
+              <ion-col size="4">Panchayat</ion-col>
+              <ion-col size="3">Vilage</ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="2"></ion-col>
+              <ion-col size="3">{{ item.other_contact }}</ion-col>
+              <ion-col size="4">{{ item.panchayat }}</ion-col>
+              <ion-col size="3">{{ item.village }}</ion-col>
+            </ion-row>
+  
+            <ion-row class="heading">
+              <ion-col size="2"></ion-col>
+              <ion-col size="3">Ward</ion-col>
+              <ion-col size="4">Quarantine</ion-col>
+              <ion-col size="3">Status</ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="2"></ion-col>
+              <ion-col size="3">{{ item.ward }}</ion-col>
+              <ion-col size="4">
+                {{ item.current_quarantined_status === 'at_isolation' ? 'At Isolation Camp' : item.current_quarantined_status === 'at_home' ? 'At Home' : item.current_quarantined_status}} 
+                (Last Entry: {{ item.current_date }} {{ item.current_slot  }})
+              </ion-col>
+              <ion-col size="3">{{ item.status }}</ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-virtual-scroll>
+        
 
       </ion-card-content>
     </ion-card>
 
-    <!-- <ng-template #noData>
+    <ng-template #noData>
       <div class="ion-margin ion-text-center">
         <br>
         <h1 class="ion-margin-vertical">
@@ -185,7 +193,7 @@
         </h1>
         <br><br>
       </div>
-    </ng-template> -->
+    </ng-template>
     
     
 

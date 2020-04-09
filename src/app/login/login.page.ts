@@ -60,10 +60,12 @@ export class LoginPage implements OnInit {
       this.dismissLoading(resp.message);
     } else {
       localStorage.setItem('accessToken', resp.data[0].accessToken);
-      this.storage.set('userData', resp.data[0]);
-
-      this.dismissLoading('');
-      this.navController.navigateForward(['/user-list']);
+      this.storage
+          .set('userData', resp.data[0])
+          .then(succ => {
+            this.dismissLoading('');
+            this.navController.navigateForward(['/user-list']);
+          });
     }
   }
 
