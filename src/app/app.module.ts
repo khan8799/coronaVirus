@@ -7,18 +7,25 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+
+// Interceptor
+import { AuthInterceptor } from './interceptor/AuthInterceptor';
+
+
+// Ionic Native Plugins
 import { CameraPreview } from '@ionic-native/camera-preview/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
-import { AuthInterceptor } from './interceptor/AuthInterceptor';
 import { IonicStorageModule } from '@ionic/storage';
 import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
+import { Network } from '@ionic-native/network/ngx';
+import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 
 @NgModule({
   declarations: [
@@ -52,6 +59,7 @@ import { FilePath } from '@ionic-native/file-path/ngx';
     File,
     WebView,
     FilePath,
+    Network
   ],
   bootstrap: [AppComponent]
 })
