@@ -36,4 +36,20 @@ export class AlertService {
 
     await alert.present();
   }
+
+  async simpleAlert(data) {
+    const alert = await this.alertController.create({
+      header: data.header,
+      subHeader: data.subHeader,
+      message: data.message,
+      buttons: [
+        {
+          text: data.buttonText,
+          cssClass: 'alert-danger'
+        }
+      ]
+    });
+
+    await alert.present();
+  }
 }
